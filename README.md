@@ -108,12 +108,23 @@ ALPHA/
 - **limited** — restricted permissions (family)
 - **joke** — experimental account type
 
+## Cluster Display Node
+
+Use a secondary Raspberry Pi as a dedicated display for ALPHA:
+
+- **3.5" GPIO TFT** — shows the web dashboard in kiosk mode
+- **16×2 I2C LCD** — live status: faults, AI health, CPU, time
+- **Voice AI** — microphone input queries Ollama through the display
+
+See [Alpha-Cluster](https://github.com/TheC03L/Alpha-Cluster) for hardware wiring, LCD driver, and setup guide.
+
 ## Specs
 
 - **Backend**: Python/Flask, SQLite, JWT auth, REST API
 - **Frontend**: React 18, TypeScript, Vite, Glassmorphism UI
-- **AI**: Ollama integration (local), remote AI option
-- **Deploy**: Raspberry Pi 5, any Linux server
+- **AI**: Ollama integration (local), OpenAI/Gemini/Claude providers
+- **Cluster Display**: 16x2 I2C LCD client, 3.5" TFT kiosk dashboard
+- **Deploy**: Raspberry Pi 5 (primary), RPi 3B+ (display node), any Linux server
 
 ## License
 

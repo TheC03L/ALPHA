@@ -54,6 +54,7 @@ def create_app():
     from api.recent import recent_bp
     from api.tools import tools_bp
     from api.system_tools import sys_tools_bp
+    from api.display import display_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(storage_bp, url_prefix='/api/storage')
@@ -71,6 +72,7 @@ def create_app():
     app.register_blueprint(recent_bp, url_prefix='/api')
     app.register_blueprint(tools_bp, url_prefix='/api/tools')
     app.register_blueprint(sys_tools_bp, url_prefix='/api/system')
+    app.register_blueprint(display_bp, url_prefix='/api/display')
 
     @app.route('/api/status')
     def status():
