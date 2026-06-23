@@ -517,3 +517,313 @@ input::placeholder {
 .markdown-content a:hover { text-decoration: underline; }
 .markdown-content hr { border: none; border-top: 1px solid var(--glass-border); margin: 16px 0; }
 .markdown-content img { max-width: 100%; border-radius: 8px; }
+
+/* ===== Joke Account Pages ===== */
+.joke-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.baby-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.baby-bg-emoji {
+  position: absolute;
+  animation: babyFloat linear infinite;
+  user-select: none;
+}
+
+@keyframes babyFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-30px) rotate(10deg); }
+  50% { transform: translateY(-10px) rotate(-5deg); }
+  75% { transform: translateY(-40px) rotate(8deg); }
+}
+
+.joke-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, var(--bg-primary) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.joke-header {
+  position: relative;
+  z-index: 10;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+}
+
+.joke-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.joke-logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--accent);
+}
+
+.joke-header-sep {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.joke-signout {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em;
+  color: var(--danger) !important;
+}
+
+.joke-back-btn {
+  padding: 6px !important;
+}
+
+.joke-content {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 32px;
+  overflow-y: auto;
+}
+
+.joke-page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.joke-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--glass-shadow);
+  padding: 40px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.joke-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.joke-subtitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.joke-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.joke-btn {
+  padding: 12px 32px;
+  font-size: 15px;
+}
+
+.joke-cartoon-card {
+  max-width: 520px;
+}
+
+.joke-cartoon-card h2,
+.joke-news-card h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.joke-cartoon-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.joke-cartoon-gif {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius);
+  width: 100%;
+}
+
+.joke-dancing-baby {
+  font-size: 48px;
+  animation: babyDance 1s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes babyDance {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-15px) rotate(-15deg); }
+  50% { transform: translateY(-5px) rotate(5deg); }
+  75% { transform: translateY(-20px) rotate(-10deg); }
+}
+
+.joke-cartoon-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.joke-news-card {
+  max-width: 520px;
+}
+
+.joke-news-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.joke-news-icon {
+  opacity: 0.4;
+  color: var(--text-muted);
+}
+
+.joke-news-body p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.joke-cocomelon-content {
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+
+.joke-cocomelon-container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.joke-cocomelon-preview {
+  cursor: pointer;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+.joke-cocomelon-preview:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px rgba(108, 92, 231, 0.2);
+}
+
+.joke-cocomelon-thumb {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+}
+
+.joke-play-icon {
+  font-size: 64px;
+  color: var(--accent);
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 40px rgba(108, 92, 231, 0.5);
+}
+.joke-cocomelon-preview:hover .joke-play-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.joke-cocomelon-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.joke-cocomelon-info {
+  padding: 20px;
+  text-align: center;
+  background: var(--bg-card);
+}
+
+.joke-cocomelon-dancing {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.joke-cocomelon-dancing span {
+  font-size: 32px;
+  animation: babyDance 1.2s ease-in-out infinite;
+  display: inline-block;
+}
+
+.joke-cocomelon-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.joke-cocomelon-player {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.joke-cocomelon-player iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

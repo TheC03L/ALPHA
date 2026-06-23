@@ -18,10 +18,25 @@ import SystemToolsPage from './pages/SystemToolsPage'
 import DownloadsPage from './pages/Downloads'
 import DisplayPage from './pages/Display'
 import Layout from './components/layout/Layout'
+import JokeTimeNotice from './pages/JokeTimeNotice'
+import JokeDashboard from './pages/JokeDashboard'
+import JokeFileManager from './pages/JokeFileManager'
+import JokeCocomelon from './pages/JokeCocomelon'
 
 function AppRoutes() {
   const { user, loading } = useAuth()
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-primary)', color: 'var(--text-secondary)' }}>ALPHA</div>
+  if (user?.role === 'joke') {
+    return (
+      <Routes>
+        <Route path="/joke/time-notice" element={<JokeTimeNotice />} />
+        <Route path="/joke/dashboard" element={<JokeDashboard />} />
+        <Route path="/joke/file-manager" element={<JokeFileManager />} />
+        <Route path="/joke/cocomelon" element={<JokeCocomelon />} />
+        <Route path="*" element={<Navigate to="/joke/time-notice" />} />
+      </Routes>
+    )
+  }
   return (
     <Routes>
       <Route path="/display" element={<DisplayPage />} />
