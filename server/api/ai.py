@@ -565,27 +565,60 @@ def export_conversation(conv_id):
 @ai_bp.route('/install-ollama', methods=['POST'])
 @login_required
 def install_ollama():
-    import subprocess
+    import subprocess, shutil
+    # Already installed and running?
     try:
-        result = subprocess.run(
-            ['curl', '-fsSL', 'https://ollama.com/install.sh'],
-            capture_output=True, text=True, timeout=30
-        )
-        if result.returncode != 0:
-            return jsonify({'error': 'Failed to download installer'}), 500
+        r = requests.get(f'{Config.OLLAMA_URL}/api/tags', timeout=3)
+        if r.status_code == 200:
+            return jsonify({'message': 'Ollama is already installed and running!'})
+    except:
+        pass
+    # Already has binary but not running?
+    if shutil.which('ollama'):
+        subprocess.run(['sudo', 'systemctl', 'start', 'ollama'], capture_output=True, timeout=10)
+        try:
+            r = requests.get(f'{Config.OLLAMA_URL}/api/tags', timeout=5)
+            if r.status_code == 200:
+                return jsonify({'message': 'Ollama service started!'})
+        except:
+            pass
+    try:
+        # Download installer
+        installer = None
+        if shutil.which('wget'):
+            dl = subprocess.run(['wget', '-qO-', 'https://ollama.com/install.sh'], capture_output=True, text=True, timeout=60)
+            if dl.returncode == 0: installer = dl.stdout
+        if installer is None:
+            dl = subprocess.run(['curl', '-fsSL', 'https://ollama.com/install.sh'], capture_output=True, text=True, timeout=60)
+            if dl.returncode == 0: installer = dl.stdout
+        if installer is None:
+            return jsonify({'error': 'Failed to download Ollama installer (try: sudo apt install curl wget)'}), 500
+        # Run installer with sudo
         install_result = subprocess.run(
-            ['sh'], input=result.stdout, capture_output=True, text=True, timeout=120
+            ['sudo', 'sh'], input=installer, capture_output=True, text=True, timeout=600
         )
-        if install_result.returncode == 0:
-            pull_result = subprocess.run(
-                ['ollama', 'pull', 'llama3.2:1b'],
-                capture_output=True, text=True, timeout=300
-            )
-            if pull_result.returncode == 0:
-                return jsonify({'message': 'Ollama installed and llama3.2:1b model pulled!'})
-            return jsonify({'message': 'Ollama installed. Model pull: ' + (pull_result.stderr or 'checking...')})
-        return jsonify({'error': install_result.stderr or 'Install failed'}), 500
+        if install_result.returncode != 0:
+            return jsonify({'error': install_result.stderr or 'Install failed (check logs)'}), 500
+        # Start Ollama service
+        subprocess.run(['sudo', 'systemctl', 'enable', 'ollama'], capture_output=True, timeout=10)
+        subprocess.run(['sudo', 'systemctl', 'start', 'ollama'], capture_output=True, timeout=10)
+        # Wait for it to be ready
+        import time as _time
+        for _ in range(30):
+            try:
+                r = requests.get(f'{Config.OLLAMA_URL}/api/tags', timeout=2)
+                if r.status_code == 200: break
+            except: pass
+            _time.sleep(2)
+        # Pull model
+        pull_result = subprocess.run(
+            ['ollama', 'pull', 'llama3.2:1b'],
+            capture_output=True, text=True, timeout=600
+        )
+        if pull_result.returncode == 0:
+            return jsonify({'message': 'Ollama installed and llama3.2:1b model pulled!'})
+        return jsonify({'message': 'Ollama installed. Model pull: ' + (pull_result.stderr or 'try again manually: ollama pull llama3.2:1b')})
     except subprocess.TimeoutExpired:
-        return jsonify({'error': 'Installation timed out'}), 500
+        return jsonify({'error': 'Installation timed out (Pi may need >10min). Run manually: curl -fsSL https://ollama.com/install.sh | sudo sh && ollama pull llama3.2:1b'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500

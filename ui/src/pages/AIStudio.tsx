@@ -160,7 +160,7 @@ export default function AIStudio() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: JSON.stringify({
           message: msgText, model: activeModel,
-          provider_id: activeProvider?.id || '',
+          provider_id: activeProvider?.id?.startsWith('__') ? '' : (activeProvider?.id || ''),
           conversation_id: convId
         }),
         signal: abortRef.current.signal
@@ -215,11 +215,23 @@ export default function AIStudio() {
 
   const loadStatusAndProviders = useCallback(async () => {
     try {
-      const [provRes, histRes] = await Promise.all([
+      const [statusRes, provRes, histRes] = await Promise.all([
+        api.get('/ai/status'),
         api.get('/ai/providers'),
         api.get('/ai/history')
       ])
-      setProviders(provRes.data)
+      let provs = provRes.data || []
+      const ollamaOnline = statusRes.data?.ollama === true
+      // Auto-add a virtual Ollama provider if Ollama is running but none configured
+      if (ollamaOnline && provs.length === 0) {
+        const models = ['llama3.2:1b', 'llama3.2:3b', 'llama3.1:8b', 'mistral:7b']
+        provs = [{ id: '__ollama__', name: 'Ollama (local)', type: 'ollama', default_model: 'llama3.2:1b', models }]
+        if (!activeProvider) {
+          setActiveProvider({ id: '__ollama__', name: 'Ollama (local)', type: 'ollama', model: 'llama3.2:1b' })
+          setActiveModel('llama3.2:1b')
+        }
+      }
+      setProviders(provs)
       setMessages(histRes.data)
     } catch {}
   }, [])
