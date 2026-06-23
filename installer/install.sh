@@ -71,8 +71,26 @@ sudo systemctl start alpha.service
 
 echo ""
 IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+
+HOTSPOT_SSID="ALPHA-$(hostname -s)"
+HOTSPOT_PASS="alphacloud"
+
+echo "[...] Creating ALPHA hotspot..."
+sudo nmcli connection delete ALPHA-Hotspot 2>/dev/null || true
+sudo nmcli connection add type wifi ifname wlan0 con-name ALPHA-Hotspot autoconnect no \
+  802-11-wireless.mode ap 802-11-wireless.ssid "$HOTSPOT_SSID" \
+  802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk "$HOTSPOT_PASS" \
+  ipv4.method shared 2>/dev/null
+
+sudo nmcli connection up ALPHA-Hotspot 2>/dev/null || echo "[!] Could not start hotspot (try manually)"
+
 echo "[✓] ALPHA is running!"
     echo "    Dashboard: http://$IP:5000"
+    echo ""
+    echo "    OR connect to WiFi hotspot:"
+    echo "      SSID:     $HOTSPOT_SSID"
+    echo "      Password: $HOTSPOT_PASS"
+    echo "      Then open http://192.168.4.1:5000"
     echo ""
     echo "    Open the dashboard, register the first account (becomes admin)."
     echo ""

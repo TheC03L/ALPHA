@@ -2,19 +2,73 @@ import React, { useEffect, useState } from 'react'
 import {
   Settings, User, Bell, Shield, RefreshCw, Download,
   Server, Globe, Moon, Sun, LogOut, Save, Brain, Palette,
-  Image
+  Image, Wifi, WifiOff, Signal, SignalHigh, SignalMedium,
+  SignalLow, Check, X, Loader, Zap
 } from 'lucide-react'
 import api from '../utils/api'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
+import { useNavigate } from 'react-router-dom'
 
 export default function SettingsPage() {
   const { user, logout } = useAuth()
   const { theme, setTheme, wallpaper, setWallpaper, THEMES, WALLPAPERS } = useTheme()
-  const [tab, setTab] = useState<'profile' | 'appearance' | 'system' | 'ai' | 'remote'>('profile')
+  const [tab, setTab] = useState<'profile' | 'appearance' | 'system' | 'ai' | 'remote' | 'network'>('profile')
   const [email, setEmail] = useState(user?.email || '')
   const [updateInfo, setUpdateInfo] = useState<any>(null)
   const [saved, setSaved] = useState(false)
+  const navigate = useNavigate()
+
+  // WiFi state
+  const [wifiStatus, setWifiStatus] = useState<any>(null)
+  const [networks, setNetworks] = useState<any[]>([])
+  const [scanning, setScanning] = useState(false)
+  const [connecting, setConnecting] = useState(false)
+  const [connectSsid, setConnectSsid] = useState('')
+  const [connectPass, setConnectPass] = useState('')
+  const [wifiMsg, setWifiMsg] = useState('')
+  const [hotspotSsid, setHotspotSsid] = useState('ALPHA-Setup')
+  const [hotspotPass, setHotspotPass] = useState('alphasetup')
+  const [hotspotBusy, setHotspotBusy] = useState(false)
+
+  const loadWifiStatus = async () => {
+    try { setWifiStatus((await api.get('/wifi/status')).data) } catch {}
+  }
+
+  const scanNetworks = async () => {
+    setScanning(true); setWifiMsg('')
+    try { setNetworks((await api.get('/wifi/scan')).data.networks || []) }
+    catch { setWifiMsg('Scan failed') }
+    setScanning(false)
+  }
+
+  const connectToNetwork = async () => {
+    if (!connectSsid) return
+    setConnecting(true); setWifiMsg('')
+    try {
+      await api.post('/wifi/connect', { ssid: connectSsid, password: connectPass })
+      setWifiMsg(`Connected to ${connectSsid}`); setConnectSsid(''); setConnectPass('')
+      setTimeout(loadWifiStatus, 3000)
+    } catch { setWifiMsg('Connection failed') }
+    setConnecting(false)
+  }
+
+  const enableHotspot = async () => {
+    setHotspotBusy(true); setWifiMsg('')
+    try {
+      const r = await api.post('/wifi/hotspot/on', { ssid: hotspotSsid, password: hotspotPass })
+      setWifiMsg(`Hotspot "${r.data.ssid}" active — connect to join`)
+      setTimeout(loadWifiStatus, 3000)
+    } catch { setWifiMsg('Hotspot failed') }
+    setHotspotBusy(false)
+  }
+
+  const disableHotspot = async () => {
+    setHotspotBusy(true)
+    try { await api.post('/wifi/hotspot/off'); setWifiMsg('Hotspot stopped'); setTimeout(loadWifiStatus, 3000) }
+    catch { setWifiMsg('Failed to stop hotspot') }
+    setHotspotBusy(false)
+  }
 
   const loadUpdateInfo = async () => {
     try {
@@ -25,6 +79,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (tab === 'system') loadUpdateInfo()
+    if (tab === 'network') loadWifiStatus()
   }, [tab])
 
   const saveProfile = async () => {
@@ -45,6 +100,7 @@ export default function SettingsPage() {
         {[
           { id: 'profile', label: 'Profile', icon: User },
           { id: 'appearance', label: 'Appearance', icon: Palette },
+          { id: 'network', label: 'Network', icon: Wifi },
           { id: 'system', label: 'System', icon: Server },
           { id: 'ai', label: 'AI', icon: Brain },
           { id: 'remote', label: 'Remote', icon: Globe },
@@ -136,6 +192,113 @@ export default function SettingsPage() {
               })}
             </div>
           </div>
+        </div>
+      )}
+
+      {tab === 'network' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Status */}
+          <div className="glass-card" style={{ padding: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
+                {wifiStatus?.hotspot_active ? <WifiOff size={16} /> : wifiStatus?.connected ? <Wifi size={16} /> : <WifiOff size={16} />}
+                WiFi {wifiStatus?.hotspot_active ? 'Hotspot' : wifiStatus?.connected ? 'Connected' : 'Disconnected'}
+              </div>
+              <button className="btn btn-ghost btn-icon btn-sm" onClick={loadWifiStatus} title="Refresh">
+                <RefreshCw size={14} />
+              </button>
+            </div>
+            {wifiStatus && (
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+                <span>SSID: <strong>{wifiStatus.ssid || '—'}</strong></span>
+                <span>IP: <strong>{wifiStatus.ip || '—'}</strong></span>
+                <span>Mode: <strong>{wifiStatus.mode}</strong></span>
+                <span>Signal: <strong>{wifiStatus.signal || 0}%</strong></span>
+              </div>
+            )}
+          </div>
+
+          {/* Connect to network */}
+          <div className="glass-card" style={{ padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Wifi size={16} /> Join a Network
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+              <input placeholder="SSID" value={connectSsid} onChange={e => setConnectSsid(e.target.value)}
+                style={{ flex: 1, height: 32, fontSize: 13 }} />
+              <input placeholder="Password" type="password" value={connectPass} onChange={e => setConnectPass(e.target.value)}
+                style={{ flex: 1, height: 32, fontSize: 13 }} />
+              <button className="btn btn-primary btn-sm" onClick={connectToNetwork} disabled={!connectSsid || connecting}
+                style={{ height: 32 }}>
+                {connecting ? <Loader size={14} className="spin" /> : <Check size={14} />}
+              </button>
+            </div>
+            <button className="btn btn-ghost btn-sm" onClick={scanNetworks} disabled={scanning}
+              style={{ fontSize: 12 }}>
+              <RefreshCw size={12} /> {scanning ? 'Scanning...' : 'Scan for networks'}
+            </button>
+            {networks.length > 0 && (
+              <div style={{ marginTop: 8, maxHeight: 160, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {networks.map((n, i) => (
+                  <div key={i} className="glass-card" style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                    onClick={() => { setConnectSsid(n.ssid); setConnectPass('') }}>
+                    <Signal size={14} style={{ color: n.signal > 60 ? 'var(--success)' : n.signal > 30 ? 'var(--warning)' : 'var(--text-muted)' }} />
+                    <span style={{ flex: 1, fontSize: 13 }}>{n.ssid}</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{n.signal}%</span>
+                    <span style={{ fontSize: 10, padding: '1px 4px', borderRadius: 4, background: 'var(--glass-border)', color: 'var(--text-muted)' }}>{n.security}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Hotspot */}
+          <div className="glass-card" style={{ padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <WifiOff size={16} /> Hotspot Access Point
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+              <input placeholder="SSID" value={hotspotSsid} onChange={e => setHotspotSsid(e.target.value)}
+                style={{ flex: 1, height: 32, fontSize: 13 }} disabled={wifiStatus?.hotspot_active} />
+              <input placeholder="Password" value={hotspotPass} onChange={e => setHotspotPass(e.target.value)}
+                style={{ flex: 1, height: 32, fontSize: 13 }} disabled={wifiStatus?.hotspot_active} />
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {wifiStatus?.hotspot_active ? (
+                <button className="btn btn-danger btn-sm" onClick={disableHotspot} disabled={hotspotBusy}>
+                  <X size={14} /> Stop Hotspot
+                </button>
+              ) : (
+                <button className="btn btn-primary btn-sm" onClick={enableHotspot} disabled={hotspotBusy}>
+                  <WifiOff size={14} /> Start Hotspot
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Finish AI Setup */}
+          <div className="glass-card" style={{ padding: 16, borderLeft: '3px solid var(--accent)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Zap size={20} style={{ color: 'var(--accent)' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>Finish AI Setup</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                  Install Ollama, pull a model, and configure your AI provider
+                </div>
+              </div>
+              <button className="btn btn-primary" onClick={() => navigate('/ai')}>
+                <Brain size={16} /> Open AI Studio
+              </button>
+            </div>
+          </div>
+
+          {wifiMsg && (
+            <div style={{ padding: '8px 12px', borderRadius: 8, fontSize: 13, background: wifiMsg.includes('failed') || wifiMsg.includes('Failed') ? 'var(--danger-dim)' : 'var(--success-dim)', color: wifiMsg.includes('failed') || wifiMsg.includes('Failed') ? 'var(--danger)' : 'var(--success)' }}>
+              {wifiMsg}
+            </div>
+          )}
         </div>
       )}
 
