@@ -6,7 +6,7 @@ import api from '../../utils/api'
 import {
   LayoutDashboard, HardDrive, Brain, Monitor, Puzzle,
   Grid3X3, Settings, LogOut, Bell, Users, BellDot, Trash2,
-  Link, Wrench, Server, FileText
+  Link, Wrench, Server, FileText, Download
 } from 'lucide-react'
 
 const navItems = [
@@ -20,6 +20,7 @@ const navItems = [
   { label: 'Apps', icon: Grid3X3, path: '/apps' },
   { label: 'System Tools', icon: Server, path: '/system-tools' },
   { section: 'Utilities' },
+  { label: 'Downloads', icon: Download, path: '/downloads' },
   { label: 'Tools', icon: Wrench, path: '/tools' },
   { label: 'Share Links', icon: Link, path: '/shares' },
   { label: 'Trash', icon: Trash2, path: '/trash' },

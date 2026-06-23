@@ -15,6 +15,7 @@ import TrashPage from './pages/TrashPage'
 import SharesPage from './pages/SharesPage'
 import ToolsPage from './pages/ToolsPage'
 import SystemToolsPage from './pages/SystemToolsPage'
+import DownloadsPage from './pages/Downloads'
 import DisplayPage from './pages/Display'
 import Layout from './components/layout/Layout'
 
@@ -43,6 +44,7 @@ function AppRoutes() {
               <Route path="/shares" element={<SharesPage />} />
               <Route path="/tools" element={<ToolsPage />} />
               <Route path="/system-tools" element={<SystemToolsPage />} />
+              <Route path="/downloads" element={<DownloadsPage />} />
               <Route path="*" element={<Dashboard />} />
             </Routes>
           </Layout>

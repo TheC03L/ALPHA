@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import {
   Cpu, HardDrive, Thermometer, Activity,
   Monitor, Database, Wifi, Clock, Brain,
-  ExternalLink, Star, History, File
+  ExternalLink, Star, History, File,
+  TrendingUp, ArrowUp, ArrowDown
 } from 'lucide-react'
 import api from '../utils/api'
-import { SystemStatus, StorageInfo, Device } from '../types'
+import { SystemStatus, StorageInfo, Device, MetricPoint } from '../types'
 import PopupModal from '../components/common/PopupModal'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -17,17 +19,20 @@ export default function Dashboard() {
   const [aiStatus, setAiStatus] = useState<any>(null)
   const [recentFiles, setRecentFiles] = useState<any[]>([])
   const [favFiles, setFavFiles] = useState<any[]>([])
+  const [metrics, setMetrics] = useState<MetricPoint[]>([])
+  const [metricRange, setMetricRange] = useState('1h')
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [sysRes, stoRes, devRes, aiRes, recentRes, favRes] = await Promise.all([
+        const [sysRes, stoRes, devRes, aiRes, recentRes, favRes, metRes] = await Promise.all([
           api.get('/system/status'),
           api.get('/storage/status'),
           api.get('/devices/'),
           api.get('/ai/status'),
           api.get('/recent'),
-          api.get('/favorites')
+          api.get('/favorites'),
+          api.get(`/monitor/history?range=${metricRange}`)
         ])
         setSys(sysRes.data)
         setStorage(stoRes.data)
@@ -35,12 +40,13 @@ export default function Dashboard() {
         setAiStatus(aiRes.data)
         setRecentFiles(recentRes.data?.slice(0, 6) || [])
         setFavFiles(favRes.data || [])
+        setMetrics(metRes.data || [])
       } catch {}
     }
     load()
     const interval = setInterval(load, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [metricRange])
 
   const formatBytes = (b: number) => {
     const units = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -194,6 +200,56 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Monitoring Charts */}
+      {metrics.length > 1 && (
+        <div className="glass-card" style={{ padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <TrendingUp size={18} /> Live Metrics
+            </h3>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {['1h', '6h', '24h', '7d'].map(r => (
+                <button key={r} className={`btn btn-ghost btn-sm ${metricRange === r ? 'active' : ''}`}
+                  onClick={() => setMetricRange(r)}
+                  style={{ padding: '2px 8px', fontSize: 11, background: metricRange === r ? 'var(--accent-dim)' : 'transparent' }}>
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>CPU / Memory / Disk</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={metrics}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="timestamp" tick={false} axisLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} width={30} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', borderRadius: 8, fontSize: 12 }} />
+                  <Line type="monotone" dataKey="cpu" stroke="#6C5CE7" strokeWidth={2} dot={false} name="CPU" />
+                  <Line type="monotone" dataKey="memory" stroke="#00B894" strokeWidth={2} dot={false} name="Memory" />
+                  <Line type="monotone" dataKey="disk" stroke="#FDCB6E" strokeWidth={2} dot={false} name="Disk" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Network I/O (bytes/s)</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={metrics}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="timestamp" tick={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={false} tickLine={false} width={30} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', borderRadius: 8, fontSize: 12 }} />
+                  <Line type="monotone" dataKey="net_recv" stroke="#00B894" strokeWidth={2} dot={false} name="Download" />
+                  <Line type="monotone" dataKey="net_sent" stroke="#6C5CE7" strokeWidth={2} dot={false} name="Upload" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* System Info */}
       <div className="glass-card" style={{ padding: 20 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={18} /> System Info

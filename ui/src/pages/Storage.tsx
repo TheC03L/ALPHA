@@ -4,7 +4,7 @@ import {
   Plus, Search, ChevronRight, ArrowLeft, RefreshCw,
   Image, FileText, Music, Film, Archive, Grid, List,
   X, Copy, Move, Edit3, Database, Server, FolderPlus,
-  Share2, Star
+  Share2, Star, Lock, Unlock
 } from 'lucide-react'
 import api from '../utils/api'
 import { FileItem, StorageDrive } from '../types'
@@ -28,7 +28,8 @@ function FileIcon({ ext, type }: { ext?: string; type: string }) {
     '.mp3': <Music size={20} />, '.wav': <Music size={20} />, '.flac': <Music size={20} />,
     '.mp4': <Film size={20} />, '.mkv': <Film size={20} />, '.mov': <Film size={20} />,
     '.zip': <Archive size={20} />, '.tar': <Archive size={20} />, '.gz': <Archive size={20} />, '.rar': <Archive size={20} />,
-    '.pdf': <FileText size={20} />, '.doc': <FileText size={20} />, '.docx': <FileText size={20} />
+    '.pdf': <FileText size={20} />, '.doc': <FileText size={20} />, '.docx': <FileText size={20} />,
+    '.alpha-encrypted': <Lock size={20} style={{ color: 'var(--warning)' }} />
   }
   return iconMap[ext || ''] || <File size={20} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
 }
@@ -129,6 +130,28 @@ export default function StoragePage() {
   const createPool = async () => {
     await api.post('/storage/pool/create')
     loadFiles()
+  }
+
+  const handleEncrypt = async (file: FileItem) => {
+    const pw = prompt('Enter encryption password:')
+    if (!pw) return
+    try {
+      await api.post('/crypto/encrypt', { path: file.path, password: pw })
+      loadFiles()
+    } catch (e: any) {
+      alert(e.response?.data?.error || 'Encryption failed')
+    }
+  }
+
+  const handleDecrypt = async (file: FileItem) => {
+    const pw = prompt('Enter decryption password:')
+    if (!pw) return
+    try {
+      await api.post('/crypto/decrypt', { path: file.path, password: pw })
+      loadFiles()
+    } catch (e: any) {
+      alert(e.response?.data?.error || 'Decryption failed')
+    }
   }
 
   return (
@@ -279,6 +302,22 @@ export default function StoragePage() {
             onClick={() => { setRenameTarget(contextMenu.file); setRenameValue(contextMenu.file.name); setContextMenu(null) }}>
             Rename
           </button>
+          {contextMenu.file.type === 'file' && (
+            <>
+              <div style={{ height: 1, background: 'var(--glass-border)', margin: '4px 0' }} />
+              {contextMenu.file.name.endsWith('.alpha-encrypted') ? (
+                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }}
+                  onClick={() => { handleDecrypt(contextMenu.file); setContextMenu(null) }}>
+                  <Unlock size={14} /> Decrypt
+                </button>
+              ) : (
+                <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start' }}
+                  onClick={() => { handleEncrypt(contextMenu.file); setContextMenu(null) }}>
+                  <Lock size={14} /> Encrypt
+                </button>
+              )}
+            </>
+          )}
           <div style={{ height: 1, background: 'var(--glass-border)', margin: '4px 0' }} />
           <button className="btn btn-ghost btn-sm" style={{ width: '100%', justifyContent: 'flex-start', color: 'var(--danger)' }}
             onClick={() => handleDelete(contextMenu.file)}>

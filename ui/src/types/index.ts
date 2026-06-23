@@ -82,3 +82,33 @@ export interface Notification {
   read: boolean
   created_at: string
 }
+
+export interface Download {
+  id: string
+  url: string
+  filename: string
+  status: 'downloading' | 'completed' | 'failed' | 'cancelled'
+  total_bytes: number
+  downloaded_bytes: number
+  speed: number
+  error?: string
+  created_at: string
+  completed_at?: string
+}
+
+export interface MetricPoint {
+  timestamp: string
+  cpu: number
+  memory: number
+  disk: number
+  net_sent: number
+  net_recv: number
+}
+
+export interface Backup {
+  id: string
+  filename: string
+  size: number
+  includes_storage: boolean
+  created_at: string
+}

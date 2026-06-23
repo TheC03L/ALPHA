@@ -58,6 +58,10 @@ def create_app():
     from api.system_tools import sys_tools_bp
     from api.display import display_bp
     from api.wifi import wifi_bp
+    from api.downloads import downloads_bp
+    from api.monitor import monitor_bp
+    from api.backup import backup_bp
+    from api.crypto import crypto_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(storage_bp, url_prefix='/api/storage')
@@ -77,6 +81,10 @@ def create_app():
     app.register_blueprint(sys_tools_bp, url_prefix='/api/system')
     app.register_blueprint(display_bp, url_prefix='/api/display')
     app.register_blueprint(wifi_bp, url_prefix='/api/wifi')
+    app.register_blueprint(downloads_bp, url_prefix='/api/downloads')
+    app.register_blueprint(monitor_bp, url_prefix='/api/monitor')
+    app.register_blueprint(backup_bp, url_prefix='/api/backup')
+    app.register_blueprint(crypto_bp, url_prefix='/api/crypto')
 
     @app.route('/api/status')
     def status():
@@ -100,5 +108,8 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+
+    from api.monitor import start_collector
+    start_collector(app)
 
     return app

@@ -3,7 +3,8 @@ import {
   Settings, User, Bell, Shield, RefreshCw, Download,
   Server, Globe, Moon, Sun, LogOut, Save, Brain, Palette,
   Image, Wifi, WifiOff, Signal, SignalHigh, SignalMedium,
-  SignalLow, Check, X, Loader, Zap
+  SignalLow, Check, X, Loader, Zap, Archive, Upload,
+  Trash2, FileText, Clock
 } from 'lucide-react'
 import api from '../utils/api'
 import { useAuth } from '../hooks/useAuth'
@@ -13,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 export default function SettingsPage() {
   const { user, logout } = useAuth()
   const { theme, setTheme, wallpaper, setWallpaper, THEMES, WALLPAPERS } = useTheme()
-  const [tab, setTab] = useState<'profile' | 'appearance' | 'system' | 'ai' | 'remote' | 'network'>('profile')
+  const [tab, setTab] = useState<'profile' | 'appearance' | 'system' | 'ai' | 'remote' | 'network' | 'backup'>('profile')
   const [email, setEmail] = useState(user?.email || '')
   const [updateInfo, setUpdateInfo] = useState<any>(null)
   const [saved, setSaved] = useState(false)
@@ -30,6 +31,56 @@ export default function SettingsPage() {
   const [hotspotSsid, setHotspotSsid] = useState('ALPHA-Setup')
   const [hotspotPass, setHotspotPass] = useState('alphasetup')
   const [hotspotBusy, setHotspotBusy] = useState(false)
+
+  // Backup state
+  const [backups, setBackups] = useState<any[]>([])
+  const [creatingBackup, setCreatingBackup] = useState(false)
+  const [includeStorage, setIncludeStorage] = useState(false)
+  const [restoring, setRestoring] = useState(false)
+  const [backupMsg, setBackupMsg] = useState('')
+
+  const loadBackups = async () => {
+    try { setBackups((await api.get('/backup/list')).data) } catch {}
+  }
+
+  const createBackup = async () => {
+    setCreatingBackup(true); setBackupMsg('')
+    try {
+      await api.post('/backup/create', { include_storage: includeStorage })
+      setBackupMsg('Backup created!')
+      loadBackups()
+    } catch { setBackupMsg('Backup failed') }
+    setCreatingBackup(false)
+  }
+
+  const restoreBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return
+    setRestoring(true); setBackupMsg('')
+    const form = new FormData()
+    form.append('file', e.target.files[0])
+    try {
+      await api.post('/backup/restore', form, { headers: { 'Content-Type': 'multipart/form-data' }})
+      setBackupMsg('Restore complete! Rebooting...')
+    } catch { setBackupMsg('Restore failed') }
+    setRestoring(false)
+  }
+
+  const downloadBackup = async (id: string) => {
+    window.open(`${api.defaults.baseURL}/backup/download/${id}`, '_blank')
+  }
+
+  const deleteBackup = async (id: string) => {
+    if (!confirm('Delete this backup?')) return
+    await api.delete(`/backup/delete/${id}`)
+    loadBackups()
+  }
+
+  const formatBytes = (b: number) => {
+    const units = ['B', 'KB', 'MB', 'GB', 'TB']
+    let i = 0; let size = b
+    while (size >= 1024 && i < units.length - 1) { size /= 1024; i++ }
+    return `${size.toFixed(1)} ${units[i]}`
+  }
 
   const loadWifiStatus = async () => {
     try { setWifiStatus((await api.get('/wifi/status')).data) } catch {}
@@ -80,6 +131,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (tab === 'system') loadUpdateInfo()
     if (tab === 'network') loadWifiStatus()
+    if (tab === 'backup') loadBackups()
   }, [tab])
 
   const saveProfile = async () => {
@@ -102,6 +154,7 @@ export default function SettingsPage() {
           { id: 'appearance', label: 'Appearance', icon: Palette },
           { id: 'network', label: 'Network', icon: Wifi },
           { id: 'system', label: 'System', icon: Server },
+          { id: 'backup', label: 'Backup', icon: Archive },
           { id: 'ai', label: 'AI', icon: Brain },
           { id: 'remote', label: 'Remote', icon: Globe },
         ].map(t => (
@@ -297,6 +350,65 @@ export default function SettingsPage() {
           {wifiMsg && (
             <div style={{ padding: '8px 12px', borderRadius: 8, fontSize: 13, background: wifiMsg.includes('failed') || wifiMsg.includes('Failed') ? 'var(--danger-dim)' : 'var(--success-dim)', color: wifiMsg.includes('failed') || wifiMsg.includes('Failed') ? 'var(--danger)' : 'var(--success)' }}>
               {wifiMsg}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === 'backup' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="glass-card" style={{ padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Archive size={16} /> Create Backup
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <button className="btn btn-primary btn-sm" onClick={createBackup} disabled={creatingBackup}>
+                {creatingBackup ? <Loader size={14} className="spin" /> : <Download size={14} />}
+                {creatingBackup ? ' Creating...' : ' Create Backup'}
+              </button>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+                <input type="checkbox" checked={includeStorage} onChange={e => setIncludeStorage(e.target.checked)} />
+                Include storage files
+              </label>
+              <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', marginLeft: 'auto' }}>
+                <Upload size={14} /> Restore from file
+                <input type="file" accept=".tar.gz" style={{ display: 'none' }} onChange={restoreBackup} disabled={restoring} />
+              </label>
+            </div>
+          </div>
+
+          {backups.length > 0 && (
+            <div className="glass-card" style={{ padding: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>Available Backups</div>
+                <button className="btn btn-ghost btn-sm" onClick={loadBackups}><RefreshCw size={14} /></button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {backups.map(b => (
+                  <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', fontSize: 13 }}>
+                    <FileText size={16} style={{ color: 'var(--text-muted)' }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.filename}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', gap: 12 }}>
+                        <span>{formatBytes(b.size)}</span>
+                        <span>{new Date(b.created_at).toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <button className="btn btn-ghost btn-icon btn-sm" onClick={() => window.open(`/api/backup/download/${b.id}`, '_blank')}>
+                      <Download size={14} />
+                    </button>
+                    <button className="btn btn-ghost btn-icon btn-sm" onClick={() => deleteBackup(b.id)}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {backupMsg && (
+            <div style={{ padding: '8px 12px', borderRadius: 8, fontSize: 13, background: backupMsg.includes('failed') ? 'var(--danger-dim)' : 'var(--success-dim)', color: backupMsg.includes('failed') ? 'var(--danger)' : 'var(--success)' }}>
+              {backupMsg}
             </div>
           )}
         </div>
