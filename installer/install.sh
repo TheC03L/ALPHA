@@ -20,17 +20,22 @@ cd "$SCRIPT_DIR"
 echo "[...] Installing system dependencies..."
 if command -v apt &>/dev/null; then
     sudo apt update -qq
-    sudo apt install -y -qq python3 python3-pip python3-venv nodejs npm curl
+    sudo apt install -y -qq python3 python3-pip python3-venv python3-dev \
+      build-essential libffi-dev libjpeg-dev zlib1g-dev nodejs npm curl
 elif command -v pacman &>/dev/null; then
-    sudo pacman -Sy --noconfirm python python-pip nodejs npm curl
+    sudo pacman -Sy --noconfirm python python-pip python-setuptools \
+      base-devel nodejs npm curl
 elif command -v dnf &>/dev/null; then
-    sudo dnf install -y python3 python3-pip nodejs npm curl
+    sudo dnf install -y python3 python3-pip python3-devel \
+      gcc gcc-c++ make libffi-devel libjpeg-turbo-devel nodejs npm curl
 fi
 
 echo "[...] Setting up Python backend..."
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -q -r requirements.txt
+pip install -q --upgrade pip setuptools wheel
+pip install -q --only-binary ':all:' -r requirements.txt \
+  || pip install -q -r requirements.txt
 
 echo "[...] Setting up frontend..."
 cd ui
