@@ -27,7 +27,9 @@ def status():
     try:
         r = requests.get(f'{Config.OLLAMA_URL}/api/tags', timeout=3)
         if r.status_code == 200: result['ollama'] = True
-    except: pass
+        else: print(f'AI STATUS: Ollama returned {r.status_code}', flush=True)
+    except Exception as e:
+        print(f'AI STATUS: Ollama error: {e}', flush=True)
     providers = AiProvider.query.filter_by(user_id=current_user.id, enabled=True).all()
     for p in providers:
         provider, models = get_provider_from_db(p)

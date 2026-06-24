@@ -1,5 +1,7 @@
-import requests, json, os, base64, io
+import requests, json, os, base64, io, threading, time
 from config import Config
+
+_ollama_warmers = {}
 
 class BaseProvider:
     def __init__(self, config: dict):
@@ -21,12 +23,38 @@ class OllamaProvider(BaseProvider):
     def __init__(self, config=None):
         super().__init__(config or {})
         self.api_url = Config.OLLAMA_URL
+        self._warm_model = 'llama3.2:1b'
+        self._start_warmer()
+
+    def _start_warmer(self):
+        tid = id(self)
+        if tid in _ollama_warmers:
+            return
+        def _warm_loop():
+            while True:
+                try:
+                    requests.post(f'{self.api_url}/api/generate',
+                        json={'model': self._warm_model, 'prompt': 'ok', 'stream': False,
+                              'keep_alive': '5m', 'options': {'num_predict': 1}},
+                        timeout=30)
+                except:
+                    pass
+                time.sleep(120)
+        t = threading.Thread(target=_warm_loop, daemon=True)
+        t.start()
+        _ollama_warmers[tid] = t
+
+    def _req(self, model, prompt, stream):
+        return requests.post(f'{self.api_url}/api/generate',
+            json={'model': model, 'prompt': prompt, 'stream': stream,
+                  'keep_alive': '10m', 'options': {'num_predict': 4096}},
+            stream=stream, timeout=120)
 
     def chat(self, messages, model=''):
         model = model or 'llama3.2:1b'
         prompt = self._build_prompt(messages)
         try:
-            r = requests.post(f'{self.api_url}/api/generate', json={'model': model, 'prompt': prompt, 'stream': False, 'options': {'num_predict': 4096}}, timeout=120)
+            r = self._req(model, prompt, False)
             if r.status_code == 200: return r.json().get('response', '')
         except Exception as e: return f'Error: {str(e)}'
         return 'Ollama unavailable'
@@ -35,7 +63,7 @@ class OllamaProvider(BaseProvider):
         model = model or 'llama3.2:1b'
         prompt = self._build_prompt(messages)
         try:
-            r = requests.post(f'{self.api_url}/api/generate', json={'model': model, 'prompt': prompt, 'stream': True, 'options': {'num_predict': 4096}}, stream=True, timeout=120)
+            r = self._req(model, prompt, True)
             for line in r.iter_lines():
                 if line:
                     try:

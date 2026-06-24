@@ -95,13 +95,13 @@ export default function Dashboard() {
         </div>
         <div className="glass-card stat-card">
           <div className="stat-label"><Thermometer size={14} style={{ display: 'inline', marginRight: 4 }} />Temperature</div>
-          <div className="stat-value">{sys?.temperature ?? '-'}°C</div>
-          <div className="stat-sub">{sys?.hostname ?? '-'}</div>
+          <div className="stat-value">{typeof sys?.temperature === 'number' ? sys.temperature + '°C' : (sys?.temperature ?? '-')}</div>
+          <div className="stat-sub">{sys?.cpu?.cores ?? '-'} cores</div>
         </div>
         <div className="glass-card stat-card">
           <div className="stat-label"><Activity size={14} style={{ display: 'inline', marginRight: 4 }} />Uptime</div>
           <div className="stat-value" style={{ fontSize: 22 }}>{sys?.uptime ?? '-'}</div>
-          <div className="stat-sub">{sys?.platform ?? ''}</div>
+          <div className="stat-sub">{sys?.platform?.split('-')?.[0] ?? ''} / {sys?.hostname ?? ''}</div>
         </div>
       </div>
 

@@ -263,3 +263,37 @@ def delete_bookmark(bm_id):
 def list_folders():
     folders = db.session.query(Bookmark.folder).filter_by(user_id=current_user.id).filter(Bookmark.folder != '_redirects').filter(Bookmark.folder != '__shorturl__').distinct().all()
     return jsonify([f[0] for f in folders])
+
+# --- Update ---
+@tools_bp.route('/update', methods=['POST'])
+@login_required
+def push_updates():
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    output = ''
+    try:
+        result = subprocess.run(['git', 'pull'], capture_output=True, text=True, cwd=repo_root, timeout=60)
+        output += result.stdout + result.stderr
+
+        result = subprocess.run(['.venv/bin/pip', 'install', '-r', 'requirements.txt'], capture_output=True, text=True, cwd=repo_root, timeout=180)
+        output += result.stdout + result.stderr
+
+        result = subprocess.run(['npm', 'install'], capture_output=True, text=True, cwd=os.path.join(repo_root, 'ui'), timeout=120)
+        output += result.stdout + result.stderr
+
+        result = subprocess.run(['npm', 'run', 'build'], capture_output=True, text=True, cwd=os.path.join(repo_root, 'ui'), timeout=180)
+        output += result.stdout + result.stderr
+
+        subprocess.Popen(['sudo', 'systemctl', 'restart', 'alpha.service'], cwd=repo_root)
+        output += '\n=== Server restart triggered ===\n'
+
+        return jsonify({'output': output})
+    except subprocess.TimeoutExpired as e:
+        return jsonify({'output': f'{output}\nTIMEOUT: {e}\n'})
+    except Exception as e:
+        return jsonify({'output': f'{output}\nERROR: {e}\n'})
+
+@tools_bp.route('/restart', methods=['POST'])
+@login_required
+def restart_server():
+    subprocess.Popen(['sudo', 'systemctl', 'restart', 'alpha.service'])
+    return jsonify({'message': 'Restarting...'})

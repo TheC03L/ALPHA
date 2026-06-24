@@ -26,10 +26,15 @@ def status():
     try:
         if os.path.exists('/sys/class/thermal/thermal_zone0/temp'):
             with open('/sys/class/thermal/thermal_zone0/temp') as f:
-                temp = round(int(f.read().strip()) / 1000, 1)
+                raw = round(int(f.read().strip()) / 1000, 1)
+                if raw > 0:
+                    temp = raw
     except:
         pass
-    uptime_seconds = int(datetime.datetime.now().timestamp() - psutil.boot_time())
+    try:
+        uptime_seconds = int(datetime.datetime.now().timestamp() - psutil.Process().create_time())
+    except:
+        uptime_seconds = 0
     days = uptime_seconds // 86400
     hours = (uptime_seconds % 86400) // 3600
     minutes = (uptime_seconds % 3600) // 60

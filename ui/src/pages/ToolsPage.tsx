@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Key, QrCode, Link, FileText, CheckSquare, Bookmark, Plus, Trash2, Pin, Edit3, Terminal, RotateCcw } from 'lucide-react'
+import { Key, QrCode, Link, FileText, CheckSquare, Bookmark, Plus, Trash2, Pin, Edit3, Terminal, RotateCcw, RefreshCw } from 'lucide-react'
 import api from '../utils/api'
 
 export default function ToolsPage() {
@@ -9,6 +9,7 @@ export default function ToolsPage() {
     { id: 'todos', label: 'Todos', icon: CheckSquare },
     { id: 'bookmarks', label: 'Bookmarks', icon: Bookmark },
     { id: 'terminal', label: 'Terminal', icon: Terminal },
+    { id: 'update', label: 'Update', icon: RefreshCw },
     { id: 'password', label: 'Password', icon: Key },
     { id: 'qrcode', label: 'QR Code', icon: QrCode },
     { id: 'shorten', label: 'Shorten', icon: Link },
@@ -28,6 +29,7 @@ export default function ToolsPage() {
       {tab === 'todos' && <TodosTab />}
       {tab === 'bookmarks' && <BookmarksTab />}
       {tab === 'terminal' && <TerminalTab />}
+      {tab === 'update' && <UpdateTab />}
       {tab === 'password' && <PasswordTab />}
       {tab === 'qrcode' && <QRCodeTab />}
       {tab === 'shorten' && <ShortenTab />}
@@ -94,6 +96,70 @@ function TerminalTab() {
         </div>
         <div ref={endRef} />
       </div>
+    </div>
+  )
+}
+
+function UpdateTab() {
+  const [output, setOutput] = useState('')
+  const [running, setRunning] = useState(false)
+  const [done, setDone] = useState(false)
+  const endRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [output])
+
+  const run = async () => {
+    setRunning(true)
+    setOutput('')
+    setDone(false)
+    try {
+      const r = await api.post('/tools/update')
+      setOutput(r.data.output || '(no output)')
+      setDone(true)
+    } catch {
+      setOutput('Failed to trigger update\n')
+    }
+    setRunning(false)
+  }
+
+  const restart = async () => {
+    try {
+      await api.post('/tools/restart')
+      setOutput(prev => prev + '\n=== Restart command sent ===')
+    } catch {
+      setOutput(prev => prev + '\n=== Restart failed ===')
+    }
+  }
+
+  return (
+    <div className="glass-card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <RefreshCw size={16} />
+        <span style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>Push Updates</span>
+        <button className="btn btn-primary btn-sm" onClick={run} disabled={running}>
+          {running ? '⏳ Running...' : 'Push Updates'}
+        </button>
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+        Runs: <code>git pull</code> → <code>pip install</code> → <code>npm build</code> → restart server
+      </div>
+      {output && (
+        <div style={{
+          background: '#0a0a0a', padding: '8px 12px', borderRadius: 8,
+          fontFamily: 'monospace', fontSize: 12, maxHeight: 400, overflow: 'auto',
+          whiteSpace: 'pre-wrap', wordBreak: 'break-all'
+        }}>
+          {output}
+          <div ref={endRef} />
+        </div>
+      )}
+      {running && <div style={{ color: 'var(--warning)', fontSize: 12 }}>⏳ Pulling, installing, building — this may take a few minutes...</div>}
+      {done && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontSize: 12, color: 'var(--success)' }}>Build complete. Server is restarting...</span>
+          <button className="btn btn-ghost btn-sm" onClick={restart}>Restart Manually</button>
+        </div>
+      )}
     </div>
   )
 }
