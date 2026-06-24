@@ -3,6 +3,24 @@ set -e
 cd "$(dirname "$0")"
 git pull
 .venv/bin/pip install -r requirements.txt
+
+# Auto-migrate database (add missing columns)
+DB="server/instance/alpha.db"
+if [ -f "$DB" ]; then
+  python3 -c "
+import sqlite3
+conn = sqlite3.connect('$DB')
+c = conn.cursor()
+# Add conversation_id to chat_message if missing
+c.execute('PRAGMA table_info(chat_message)')
+cols = [row[1] for row in c.fetchall()]
+if 'conversation_id' not in cols:
+    c.execute('ALTER TABLE chat_message ADD COLUMN conversation_id VARCHAR(64) REFERENCES conversation(id)')
+    print('DB: added conversation_id')
+conn.commit()
+conn.close()
+"
+fi
 cd ui && npm install && npm run build
 cd ..
 if ! command -v ollama &>/dev/null; then
