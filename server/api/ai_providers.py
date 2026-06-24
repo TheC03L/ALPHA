@@ -228,6 +228,7 @@ PROVIDER_MAP = {
     'openai': OpenAICompatibleProvider,
     'gemini': GeminiProvider,
     'claude': ClaudeProvider,
+    'opencode': OpenAICompatibleProvider,
 }
 
 def get_provider(provider_type: str, config: dict = None) -> BaseProvider:
@@ -236,6 +237,10 @@ def get_provider(provider_type: str, config: dict = None) -> BaseProvider:
     return cls(config)
 
 def get_provider_from_db(db_provider):
+    # Map unknown types to OpenAI-compatible
+    t = db_provider.provider_type
+    if t not in PROVIDER_MAP:
+        db_provider.provider_type = 'openai'
     import json as j
     config = {
         'name': db_provider.name,
