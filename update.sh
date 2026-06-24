@@ -2,6 +2,10 @@
 set -e
 cd "$(dirname "$0")"
 git pull
+# Ensure virtual environment exists
+if [ ! -d .venv ]; then
+  python3 -m venv .venv
+fi
 .venv/bin/pip install -r requirements.txt
 
 # Auto-migrate database (add missing columns)
