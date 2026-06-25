@@ -21,6 +21,19 @@ const PROVIDER_COLORS: Record<string, string> = {
   gemini: 'var(--warning)', claude: 'var(--info)',
 }
 
+const AI_AGENTS = [
+  { id: 'general', name: 'General', icon: Brain, color: 'var(--accent)',
+    prompt: 'You are a helpful AI assistant. Respond conversationally and helpfully.' },
+  { id: 'coding', name: 'Coding', icon: FileCode, color: 'var(--success)',
+    prompt: 'You are an expert programmer. Write clean, well-structured code with explanations. Always include code examples when relevant.' },
+  { id: 'sysadmin', name: 'Sys Admin', icon: Activity, color: 'var(--warning)',
+    prompt: 'You are a Linux system administrator expert. Help diagnose issues, suggest commands, and explain system concepts clearly.' },
+  { id: 'creative', name: 'Creative', icon: Sparkles, color: 'var(--info)',
+    prompt: 'You are a creative writing assistant. Help with brainstorming, drafting, editing, and refining creative content.' },
+  { id: 'analyst', name: 'Analyst', icon: FileSearch, color: 'var(--danger)',
+    prompt: 'You are a data and file analysis expert. Analyze information thoroughly, identify patterns, and provide actionable insights.' },
+]
+
 function MarkdownContent({ content }: { content: string }) {
   return (
     <div className="markdown-content" style={{ fontSize: 14, lineHeight: 1.6 }}>
@@ -69,6 +82,8 @@ export default function AIStudio() {
   const [editingConvId, setEditingConvId] = useState<string | null>(null)
   const [showSystemPrompt, setShowSystemPrompt] = useState(false)
   const [systemPrompt, setSystemPrompt] = useState('')
+  const [activeAgent, setActiveAgent] = useState('general')
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   const loadConversations = useCallback(async () => {
     try {
@@ -88,7 +103,11 @@ export default function AIStudio() {
   const switchConversation = async (conv: any) => {
     abortRef.current?.abort()
     setActiveConv(conv)
-    setSystemPrompt(conv?.system_prompt || '')
+    const sp = conv?.system_prompt || ''
+    setSystemPrompt(sp)
+    const match = AI_AGENTS.find(a => a.prompt === sp)
+    if (match) setActiveAgent(match.id)
+    else setActiveAgent('general')
     await loadMessages(conv?.id)
     setShowProviderDropdown(false)
   }
@@ -101,6 +120,7 @@ export default function AIStudio() {
     setMessages([])
     setSystemPrompt('')
     setStreamingText('')
+    setActiveAgent('general')
     loadConversations()
   }
 
@@ -121,10 +141,21 @@ export default function AIStudio() {
     if (activeConv?.id === id) setActiveConv({ ...activeConv, title })
   }
 
-  const updateSystemPrompt = async () => {
+  const updateSystemPrompt = async (prompt?: string) => {
     if (!activeConv) return
-    await api.put(`/ai/conversations/${activeConv.id}`, { system_prompt: systemPrompt })
+    const sp = prompt !== undefined ? prompt : systemPrompt
+    await api.put(`/ai/conversations/${activeConv.id}`, { system_prompt: sp })
     setShowSystemPrompt(false)
+  }
+
+  const selectAgent = (agentId: string) => {
+    const agent = AI_AGENTS.find(a => a.id === agentId)
+    if (!agent) return
+    setActiveAgent(agentId)
+    setSystemPrompt(agent.prompt)
+    if (activeConv) {
+      api.put(`/ai/conversations/${activeConv.id}`, { system_prompt: agent.prompt })
+    }
   }
 
   useEffect(() => {
@@ -137,7 +168,10 @@ export default function AIStudio() {
   }, [])
 
   useEffect(() => {
-    chatEnd.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = chatContainerRef.current
+    if (!el) { chatEnd.current?.scrollIntoView({ behavior: 'auto' }); return }
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 150
+    if (isNearBottom) chatEnd.current?.scrollIntoView({ behavior: 'auto' })
   }, [messages, streamingText])
 
   const selectProvider = (p: any, model: string) => {
@@ -152,8 +186,8 @@ export default function AIStudio() {
     abortRef.current = new AbortController()
 
     if (!activeConv) {
-      const r = await api.post('/ai/conversations', { title: input.trim().slice(0, 50) })
-      const conv = { id: r.data.id, title: r.data.title, system_prompt: '', message_count: 0 }
+      const r = await api.post('/ai/conversations', { title: input.trim().slice(0, 50), system_prompt: systemPrompt })
+      const conv = { id: r.data.id, title: r.data.title, system_prompt: systemPrompt, message_count: 0 }
       setActiveConv(conv)
       loadConversations()
     }
@@ -255,6 +289,12 @@ export default function AIStudio() {
           api_url: 'https://opencode.ai/zen', api_key: '',
           default_model: 'big-pickle',
           models: ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
+        })
+        provs.push({
+          id: '__keylessai__', name: 'KeylessAI (free)', type: 'openai',
+          api_url: 'https://keylessai.thryx.workers.dev/v1', api_key: 'not-needed',
+          default_model: 'openai-fast',
+          models: ['openai-fast', 'step-3.5-flash:free', 'gemma3-270m:free', 'gpt-5-nano', 'gpt-4o-mini', 'gpt-3.5-turbo']
         })
         if (!activeProvider && provs.length > 0) {
           setActiveProvider(provs[0])
@@ -407,8 +447,30 @@ export default function AIStudio() {
                 style={{ width: '100%', height: 60, fontSize: 12, resize: 'vertical' }} />
             )}
 
+            {/* AI Agent selector */}
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', padding: '4px 0' }}>
+              {AI_AGENTS.map(a => {
+                const active = activeAgent === a.id
+                const Icon = a.icon
+                return (
+                  <button key={a.id} onClick={() => selectAgent(a.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px',
+                      borderRadius: 20, fontSize: 12, fontWeight: active ? 600 : 400,
+                      background: active ? a.color : 'rgba(255,255,255,0.05)',
+                      color: active ? '#fff' : 'var(--text-secondary)',
+                      border: active ? 'none' : '1px solid var(--glass-border)',
+                      cursor: 'pointer', transition: 'all 0.15s'
+                    }}>
+                    <Icon size={13} />
+                    {a.name}
+                  </button>
+                )
+              })}
+            </div>
+
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {messages.length === 0 && !streamingText && (
                 <div className="empty-state" style={{ flex: 1 }}>
                   <Sparkles size={48} />

@@ -23,6 +23,13 @@ def get_provider_for_user(provider_id=None, data=None):
                 'api_url': d.get('provider_api_url', 'https://opencode.ai/zen'),
                 'default_model': d.get('model', 'big-pickle')
             }), ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
+        if provider_id == '__keylessai__':
+            from .ai_providers import OpenAICompatibleProvider
+            return OpenAICompatibleProvider({
+                'api_key': 'not-needed',
+                'api_url': 'https://keylessai.thryx.workers.dev/v1',
+                'default_model': 'openai-fast'
+            }), ['openai-fast', 'step-3.5-flash:free', 'gemma3-270m:free', 'gpt-5-nano', 'gpt-4o-mini', 'gpt-3.5-turbo']
         if provider_id == '__ollama__':
             return OllamaProvider(), []
         dp = AiProvider.query.filter_by(id=provider_id, user_id=current_user.id, enabled=True).first()
@@ -63,7 +70,12 @@ def status():
             'default_model': 'big-pickle',
             'models': ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
         })
-        result['active_provider'] = {'id': '__opencode__', 'name': 'OpenCode Zen', 'type': 'openai', 'model': 'big-pickle'}
+        result['providers'].append({
+            'id': '__keylessai__', 'name': 'KeylessAI (free)', 'type': 'openai',
+            'default_model': 'openai-fast',
+            'models': ['openai-fast', 'step-3.5-flash:free', 'gemma3-270m:free', 'gpt-5-nano', 'gpt-4o-mini', 'gpt-3.5-turbo']
+        })
+        result['active_provider'] = {'id': '__keylessai__', 'name': 'KeylessAI (free)', 'type': 'openai', 'model': 'openai-fast'}
     return jsonify(result)
 
 @ai_bp.route('/models')
