@@ -22,7 +22,7 @@ def get_provider_for_user(provider_id=None, data=None):
                 'api_key': d.get('provider_api_key', ''),
                 'api_url': d.get('provider_api_url', 'https://opencode.ai/zen'),
                 'default_model': d.get('model', 'big-pickle')
-            }), ['big-pickle', 'deepseek-v4-flash-free', 'glm-5-free', 'kimi-k2.6-free']
+            }), ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
         if provider_id == '__ollama__':
             return OllamaProvider(), []
         dp = AiProvider.query.filter_by(id=provider_id, user_id=current_user.id, enabled=True).first()
@@ -61,7 +61,7 @@ def status():
         result['providers'].append({
             'id': '__opencode__', 'name': 'OpenCode Zen', 'type': 'openai',
             'default_model': 'big-pickle',
-            'models': ['big-pickle', 'deepseek-v4-flash-free', 'glm-5-free', 'kimi-k2.6-free']
+            'models': ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
         })
         result['active_provider'] = {'id': '__opencode__', 'name': 'OpenCode Zen', 'type': 'openai', 'model': 'big-pickle'}
     return jsonify(result)
