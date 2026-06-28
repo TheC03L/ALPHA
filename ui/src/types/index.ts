@@ -115,3 +115,43 @@ export interface Backup {
   includes_storage: boolean
   created_at: string
 }
+
+export interface DashboardWidget {
+  id: string
+  type: 'builtin' | 'ai'
+  title: string
+  subtitle?: string
+  icon: string
+  color: string
+  value?: string
+  data?: any
+  width?: 1 | 2 | 3
+  height?: 1 | 2
+  source?: 'system' | 'cpu' | 'memory' | 'storage' | 'network' | 'devices' | 'ai' | 'custom'
+}
+
+export interface CustomizationConfig {
+  darkMode: boolean
+  glassOpacity: number
+  blurStrength: number
+  borderRadius: number
+  glowIntensity: number
+  animationSpeed: number
+  cardStyle: 'glass' | 'liquid' | 'solid'
+  sidebarPosition: 'left' | 'right'
+  widgetDensity: 'compact' | 'normal' | 'comfortable'
+  fontSize: 'small' | 'medium' | 'large'
+  showLabels: boolean
+  showAnimations: boolean
+}
+
+export interface AIProvider {
+  id: string
+  name: string
+  type: string
+  api_url?: string
+  api_key?: string
+  default_model?: string
+  enabled?: boolean
+  models?: string[]
+}

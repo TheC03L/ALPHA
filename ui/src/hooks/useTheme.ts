@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '../utils/api'
+import { CustomizationConfig } from '../types'
 
 export const THEMES = [
   { id: 'theme-purple', name: 'Purple', color: '#6c5ce7' },
@@ -52,28 +53,79 @@ export const WALLPAPERS = [
   { id: 'wallpaper-sakura', name: 'Sakura', icon: '🌸' },
   { id: 'wallpaper-stars', name: 'Stars', icon: '★' },
   { id: 'wallpaper-rain', name: 'Rain', icon: '☔' },
+  { id: 'wallpaper-mountain', name: 'Mountain', icon: '🏔️' },
+  { id: 'wallpaper-ocean', name: 'Ocean', icon: '🌊' },
+  { id: 'wallpaper-sunset', name: 'Sunset', icon: '🌅' },
+  { id: 'wallpaper-forest', name: 'Forest', icon: '🌲' },
+  { id: 'wallpaper-cosmos', name: 'Cosmos', icon: '🌌' },
+  { id: 'wallpaper-cherry', name: 'Cherry', icon: '🌸' },
+  { id: 'wallpaper-snow', name: 'Snow', icon: '❄️' },
+  { id: 'wallpaper-fire', name: 'Fire', icon: '🔥' },
 ]
+
+const DEFAULT_CONFIG: CustomizationConfig = {
+  darkMode: false,
+  glassOpacity: 55,
+  blurStrength: 20,
+  borderRadius: 16,
+  glowIntensity: 50,
+  animationSpeed: 100,
+  cardStyle: 'liquid',
+  sidebarPosition: 'left',
+  widgetDensity: 'normal',
+  fontSize: 'medium',
+  showLabels: true,
+  showAnimations: true,
+}
 
 export function useTheme() {
   const [theme, setThemeState] = useState(() => localStorage.getItem('alpha-theme') || 'theme-purple')
   const [wallpaper, setWallpaperState] = useState(() => localStorage.getItem('alpha-wallpaper') || 'wallpaper-none')
-  const [darkMode, setDarkModeState] = useState(() => localStorage.getItem('alpha-dark') === 'true')
+  const [config, setConfigState] = useState<CustomizationConfig>(() => {
+    try { return JSON.parse(localStorage.getItem('alpha-config') || 'null') || DEFAULT_CONFIG }
+    catch { return DEFAULT_CONFIG }
+  })
+  const [providers, setProviders] = useState<any[]>([])
+
+  useEffect(() => {
+    api.get('/ai/providers').then(r => setProviders(r.data || [])).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const allIds = [...THEMES.map(t => t.id), ...WALLPAPERS.map(w => w.id)]
     document.body.classList.remove(...allIds)
     document.body.classList.add(theme, wallpaper)
-    document.body.classList.toggle('dark', darkMode)
+    document.body.classList.toggle('dark', config.darkMode)
+
+    document.documentElement.style.setProperty('--glass-bg-opacity', String(config.glassOpacity / 100))
+    document.documentElement.style.setProperty('--glass-blur', `${config.blurStrength}px`)
+    document.documentElement.style.setProperty('--radius', `${config.borderRadius}px`)
+    document.documentElement.style.setProperty('--radius-sm', `${Math.round(config.borderRadius * 0.6)}px`)
+    document.documentElement.style.setProperty('--radius-lg', `${Math.round(config.borderRadius * 1.5)}px`)
+    document.documentElement.style.setProperty('--radius-xl', `${Math.round(config.borderRadius * 2)}px`)
+
+    const glowVal = config.glowIntensity / 100
+    document.documentElement.style.setProperty('--glow-opacity', String(glowVal))
+
+    const animSpeed = config.animationSpeed / 100
+    document.documentElement.style.setProperty('--anim-speed', `${animSpeed}s`)
+    document.documentElement.style.setProperty('--anim-speed-fast', `${animSpeed * 0.3}s`)
+
+    document.documentElement.style.setProperty('--font-size-mult', config.fontSize === 'small' ? '0.9' : config.fontSize === 'large' ? '1.1' : '1')
+
     localStorage.setItem('alpha-theme', theme)
     localStorage.setItem('alpha-wallpaper', wallpaper)
-    localStorage.setItem('alpha-dark', String(darkMode))
-  }, [theme, wallpaper, darkMode])
+    localStorage.setItem('alpha-config', JSON.stringify(config))
+  }, [theme, wallpaper, config])
 
   useEffect(() => {
     api.get('/users/settings').then(r => {
       if (r.data.theme) setThemeState(r.data.theme)
       if (r.data.wallpaper) setWallpaperState(r.data.wallpaper)
-      if (r.data.dark_mode !== undefined) setDarkModeState(r.data.dark_mode)
+      if (r.data.config) {
+        try { setConfigState({ ...DEFAULT_CONFIG, ...JSON.parse(r.data.config) }) }
+        catch {}
+      }
     }).catch(() => {})
   }, [])
 
@@ -87,12 +139,26 @@ export function useTheme() {
     await api.put('/users/settings', { wallpaper: w }).catch(() => {})
   }, [])
 
-  const setDarkMode = useCallback(async (d: boolean) => {
-    setDarkModeState(d)
-    await api.put('/users/settings', { dark_mode: d }).catch(() => {})
+  const updateConfig = useCallback(async (updates: Partial<CustomizationConfig>) => {
+    setConfigState(prev => {
+      const next = { ...prev, ...updates }
+      localStorage.setItem('alpha-config', JSON.stringify(next))
+      api.put('/users/settings', { config: JSON.stringify(next) }).catch(() => {})
+      return next
+    })
   }, [])
 
-  const toggleDarkMode = useCallback(() => setDarkMode(!darkMode), [darkMode, setDarkMode])
+  const toggleDarkMode = useCallback(() => {
+    updateConfig({ darkMode: !config.darkMode })
+  }, [config.darkMode, updateConfig])
 
-  return { theme, setTheme, wallpaper, setWallpaper, darkMode, setDarkMode, toggleDarkMode, THEMES, WALLPAPERS }
+  return {
+    theme, setTheme,
+    wallpaper, setWallpaper,
+    config, updateConfig,
+    darkMode: config.darkMode,
+    toggleDarkMode,
+    providers,
+    THEMES, WALLPAPERS,
+  }
 }

@@ -24,7 +24,7 @@ type TabId = typeof SETTINGS_TABS[number]['id']
 
 export default function SettingsPage() {
   const { user, logout } = useAuth()
-  const { theme, setTheme, wallpaper, setWallpaper, darkMode, setDarkMode, toggleDarkMode } = useTheme()
+  const { theme, setTheme, wallpaper, setWallpaper, config, updateConfig, toggleDarkMode } = useTheme()
   const [tab, setTab] = useState<TabId>('profile')
   const [email, setEmail] = useState(user?.email || '')
   const [saved, setSaved] = useState(false)
@@ -89,31 +89,31 @@ export default function SettingsPage() {
               <Sun size={16} /> Theme Mode
             </h3>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setDarkMode(false)}
+              <button onClick={() => updateConfig({ darkMode: false })}
                 style={{
                   flex: 1, padding: '14px 20px', borderRadius: 12,
-                  border: !darkMode ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
-                  background: !darkMode ? 'var(--accent-dim)' : 'var(--glass-bg)',
+                  border: !config.darkMode ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
+                  background: !config.darkMode ? 'var(--accent-dim)' : 'var(--glass-bg)',
                   cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s',
                   display: 'flex', alignItems: 'center', gap: 10, fontSize: 14
                 }}>
-                <Sun size={18} style={{ color: !darkMode ? 'var(--accent)' : 'var(--text-muted)' }} />
+                <Sun size={18} style={{ color: !config.darkMode ? 'var(--accent)' : 'var(--text-muted)' }} />
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontWeight: 600, color: !darkMode ? 'var(--accent)' : 'var(--text-primary)' }}>Light</div>
+                  <div style={{ fontWeight: 600, color: !config.darkMode ? 'var(--accent)' : 'var(--text-primary)' }}>Light</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Bright & clean</div>
                 </div>
               </button>
-              <button onClick={() => setDarkMode(true)}
+              <button onClick={() => updateConfig({ darkMode: true })}
                 style={{
                   flex: 1, padding: '14px 20px', borderRadius: 12,
-                  border: darkMode ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
-                  background: darkMode ? 'var(--accent-dim)' : 'var(--glass-bg)',
+                  border: config.darkMode ? '2px solid var(--accent)' : '1px solid var(--glass-border)',
+                  background: config.darkMode ? 'var(--accent-dim)' : 'var(--glass-bg)',
                   cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s',
                   display: 'flex', alignItems: 'center', gap: 10, fontSize: 14
                 }}>
-                <Moon size={18} style={{ color: darkMode ? 'var(--accent)' : 'var(--text-muted)' }} />
+                <Moon size={18} style={{ color: config.darkMode ? 'var(--accent)' : 'var(--text-muted)' }} />
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontWeight: 600, color: darkMode ? 'var(--accent)' : 'var(--text-primary)' }}>Dark</div>
+                  <div style={{ fontWeight: 600, color: config.darkMode ? 'var(--accent)' : 'var(--text-primary)' }}>Dark</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Easy on the eyes</div>
                 </div>
               </button>
