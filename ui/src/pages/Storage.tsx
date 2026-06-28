@@ -154,6 +154,14 @@ export default function StoragePage() {
     }
   }
 
+  const unmountDrive = async (driveId: string) => {
+    if (!confirm('Safely remove this drive?')) return
+    try {
+      await api.post(`/storage/drives/unmount/${driveId}`)
+      loadFiles()
+    } catch {}
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
       {/* Storage Info Bar */}

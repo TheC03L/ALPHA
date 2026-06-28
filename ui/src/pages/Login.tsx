@@ -24,11 +24,14 @@ export default function Login() {
 
   return (
     <div className="login-page">
+      <div className="orb" />
+      <div className="orb" />
+      <div className="orb" />
       <div className="login-container">
         <h1>ALPHA</h1>
-        <p>Personal Cloud Operating System</p>
+        <p className="subtitle">Personal Cloud Operating System</p>
         <form onSubmit={handleSubmit}>
-          {error && <p style={{ color: 'var(--danger)', fontSize: 13, textAlign: 'center' }}>{error}</p>}
+          {error && <div className="login-error">{error}</div>}
           <input
             type="text"
             placeholder="Username"
@@ -43,19 +46,16 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary btn-lg">
             {isRegister ? 'Create Account' : 'Sign In'}
           </button>
         </form>
-        <p style={{ marginTop: 20, fontSize: 13 }}>
+        <div className="login-toggle">
           {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button
-            onClick={() => setIsRegister(!isRegister)}
-            style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }}
-          >
+          <button onClick={() => setIsRegister(!isRegister)}>
             {isRegister ? 'Sign in' : 'Create one'}
           </button>
-        </p>
+        </div>
       </div>
     </div>
   )

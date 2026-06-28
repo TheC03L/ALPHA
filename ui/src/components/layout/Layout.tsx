@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
@@ -6,7 +6,8 @@ import api from '../../utils/api'
 import {
   LayoutDashboard, HardDrive, Brain, Monitor, Puzzle,
   Grid3X3, Settings, LogOut, Bell, Users, BellDot, Trash2,
-  Link, Wrench, Server, FileText, Download
+  Link, Wrench, Server, Download, Search, ChevronLeft,
+  ChevronRight, Sun, Moon, PanelLeftClose, PanelLeft
 } from 'lucide-react'
 
 const navItems = [
@@ -33,10 +34,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
-  const { } = useTheme()
+  const { darkMode, toggleDarkMode } = useTheme()
   const [unread, setUnread] = useState(0)
   const [notifs, setNotifs] = useState<any[]>([])
   const [showNotifs, setShowNotifs] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('alpha-sidebar') === 'collapsed')
+  const [searchQuery, setSearchQuery] = useState('')
+  const notifRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    localStorage.setItem('alpha-sidebar', collapsed ? 'collapsed' : 'expanded')
+  }, [collapsed])
 
   useEffect(() => {
     if (!user) return
@@ -52,15 +60,35 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval)
   }, [user])
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifs(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const markRead = async (id: string) => {
     await api.post(`/notifications/read/${id}`)
     setUnread(prev => Math.max(0, prev - 1))
     setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
   }
 
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/storage?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery('')
+    }
+  }
+
+  const pageTitle = navItems.find(i => 'path' in i && i.path === location.pathname)?.label
+    || (location.pathname === '/users' ? 'Users' : 'Dashboard')
+
   return (
     <div className="layout">
-      <div className="sidebar">
+      <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-logo">
           <div className="logo-icon">A</div>
           <span>ALPHA</span>
@@ -74,11 +102,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               key={i}
               className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
               onClick={() => item.path && navigate(item.path)}
+              title={collapsed ? item.label : undefined}
             >
               {item.icon && <item.icon />}
-              {item.label}
+              <span>{item.label}</span>
               {item.label === 'Notifications' && unread > 0 && (
-                <span style={{ marginLeft: 'auto', fontSize: 10, padding: '1px 6px', borderRadius: 8, background: 'var(--accent)', color: 'white' }}>{unread}</span>
+                <span className="badge badge-accent" style={{ marginLeft: 'auto', padding: '1px 6px', fontSize: 10 }}>{unread}</span>
               )}
             </button>
           )
@@ -90,59 +119,123 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <button
               className={`nav-item ${location.pathname === '/users' ? 'active' : ''}`}
               onClick={() => navigate('/users')}
+              title={collapsed ? 'Users' : undefined}
             >
-              <Users /> Users
+              <Users /> <span>Users</span>
             </button>
           </>
         )}
 
         <div style={{ flex: 1 }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderTop: '1px solid var(--glass-border)', margin: '0 -16px', paddingLeft: 28, paddingRight: 28 }}>
-          <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent-dim)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 12px', borderTop: '1px solid var(--glass-border)',
+          margin: '0 -14px', paddingLeft: 24, paddingRight: 24,
+          transition: 'padding var(--transition)'
+        }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--accent-dim), var(--accent))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 14, fontWeight: 700, color: 'white', flexShrink: 0
+          }}>
             {user?.username?.[0]?.toUpperCase()}
           </div>
-          <div style={{ flex: 1, fontSize: 13 }}>
-            <div style={{ fontWeight: 500 }}>{user?.username}</div>
+          <div className="sidebar-user-info" style={{ flex: 1, fontSize: 13, minWidth: 0, transition: 'opacity var(--transition)' }}>
+            <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.username}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'capitalize' }}>{user?.role}</div>
           </div>
-          <button className="btn btn-ghost btn-icon btn-sm" onClick={logout} title="Logout">
-            <LogOut size={16} />
+          <button className="btn btn-ghost btn-icon btn-sm" onClick={logout} title="Logout" style={{ flexShrink: 0 }}>
+            <LogOut size={15} />
           </button>
         </div>
       </div>
 
+      <button
+        className="sidebar-toggle"
+        onClick={() => setCollapsed(!collapsed)}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        style={{
+          position: 'fixed',
+          left: collapsed ? 60 : 244,
+          bottom: 24,
+          zIndex: 60,
+          transition: 'left var(--transition)'
+        }}
+      >
+        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      </button>
+
       <div className="main-area">
         <div className="header">
           <div className="header-left">
-            <h2 style={{ fontSize: 18, fontWeight: 600 }}>
-              {navItems.find(i => 'path' in i && i.path === location.pathname)?.label || 
-               (location.pathname === '/users' ? 'Users' : 'Dashboard')}
+            <div className="header-search">
+              <Search size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+              <input
+                placeholder="Search files, settings..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
+              />
+            </div>
+            <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)' }}>
+              {pageTitle}
             </h2>
           </div>
           <div className="header-right">
-            <div style={{ position: 'relative' }}>
+            <button className="btn btn-ghost btn-icon" onClick={toggleDarkMode} title={darkMode ? 'Light mode' : 'Dark mode'}>
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <div ref={notifRef} style={{ position: 'relative' }}>
               <button className="btn btn-ghost btn-icon" onClick={() => setShowNotifs(!showNotifs)} title="Notifications">
                 {unread > 0 ? <BellDot size={18} style={{ color: 'var(--accent)' }} /> : <Bell size={18} />}
               </button>
               {unread > 0 && !showNotifs && (
-                <span style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: '50%', background: 'var(--danger)' }} />
+                <span style={{
+                  position: 'absolute', top: 4, right: 4, width: 8, height: 8,
+                  borderRadius: '50%', background: 'var(--danger)',
+                  boxShadow: '0 0 8px var(--danger)'
+                }} />
               )}
               {showNotifs && (
-                <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, width: 320, background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)', borderRadius: 12, boxShadow: '0 12px 40px rgba(0,0,0,0.5)', zIndex: 100, padding: 8 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 8px 12px', borderBottom: '1px solid var(--glass-border)' }}>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>Notifications</span>
-                    <button className="btn btn-ghost btn-sm" onClick={() => { navigate('/notifications'); setShowNotifs(false) }}>View All</button>
+                <div className="notif-dropdown">
+                  <div style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '8px 8px 12px', borderBottom: '1px solid var(--glass-border)'
+                  }}>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>Notifications</span>
+                    <button className="btn btn-ghost btn-sm" onClick={() => { navigate('/notifications'); setShowNotifs(false) }}>
+                      View All
+                    </button>
                   </div>
                   {notifs.length === 0 ? (
-                    <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: 'var(--text-muted)' }}>No notifications</div>
+                    <div style={{ padding: 24, textAlign: 'center', fontSize: 13, color: 'var(--text-muted)' }}>
+                      No notifications
+                    </div>
                   ) : notifs.map(n => (
-                    <div key={n.id} style={{ padding: '8px 8px', display: 'flex', gap: 8, alignItems: 'flex-start', opacity: n.read ? 0.5 : 1, cursor: 'pointer', borderRadius: 8 }}
-                      onClick={() => { if (!n.read) markRead(n.id) }}>
+                    <div key={n.id}
+                      style={{
+                        padding: '10px 10px', display: 'flex', gap: 10, alignItems: 'flex-start',
+                        opacity: n.read ? 0.5 : 1, cursor: 'pointer', borderRadius: 8,
+                        transition: 'background 0.2s'
+                      }}
+                      onClick={() => { if (!n.read) markRead(n.id) }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500 }}>{n.title}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.message}</div>
+                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{n.title}</div>
+                        <div style={{
+                          fontSize: 12, color: 'var(--text-muted)',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                        }}>{n.message}</div>
                       </div>
-                      {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, marginTop: 4 }} />}
+                      {!n.read && (
+                        <span style={{
+                          width: 8, height: 8, borderRadius: '50%',
+                          background: 'var(--accent)', flexShrink: 0, marginTop: 4
+                        }} />
+                      )}
                     </div>
                   ))}
                 </div>
