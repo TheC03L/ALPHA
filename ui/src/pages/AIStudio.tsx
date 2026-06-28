@@ -6,6 +6,12 @@ import {
   Edit3, Check, Download, PanelLeftClose, PanelLeft,
   BookOpen, Sparkles
 } from 'lucide-react'
+import {
+  OPENCODE_MODELS, KEYLESSAI_MODELS, GROQ_MODELS,
+  HUGGINGFACE_MODELS, CLOUDFLARE_MODELS,
+  OPENAI_MODELS, GEMINI_MODELS, CLAUDE_MODELS,
+  VIRTUAL_PROVIDERS, PROVIDER_TYPES
+} from '../data/aiModels'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import api from '../utils/api'
@@ -283,19 +289,10 @@ export default function AIStudio() {
         if (ollamaOnline) {
           provs.push({ id: '__ollama__', name: 'Ollama (local)', type: 'ollama', default_model: ollamaModels[0] || 'llama3.2:1b', models: ollamaModels })
         }
-        // Add OpenCode Zen virtual provider (free cloud models, no API key)
-        provs.push({
-          id: '__opencode__', name: 'OpenCode Zen', type: 'openai',
-          api_url: 'https://opencode.ai/zen', api_key: '',
-          default_model: 'big-pickle',
-          models: ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
-        })
-        provs.push({
-          id: '__keylessai__', name: 'KeylessAI (free)', type: 'openai',
-          api_url: 'https://keylessai.thryx.workers.dev/v1', api_key: 'not-needed',
-          default_model: 'openai-fast',
-          models: ['openai-fast', 'step-3.5-flash:free', 'gemma3-270m:free', 'gpt-5-nano', 'gpt-4o-mini', 'gpt-3.5-turbo']
-        })
+        // Add virtual providers (free cloud models, no API key needed)
+        for (const vp of VIRTUAL_PROVIDERS) {
+          provs.push({ ...vp })
+        }
         if (!activeProvider && provs.length > 0) {
           setActiveProvider(provs[0])
           setActiveModel(provs[0].default_model || provs[0].models[0])
@@ -678,15 +675,15 @@ function ProvidersTab({ providers, onUpdate }: { providers: any[]; onUpdate: () 
 
   const removeProvider = async (id: string) => { await api.delete(`/ai/providers/${id}`); onUpdate() }
 
-  const providerDefaults: Record<string, { url: string; models: string[] }> = {
-    openai: { url: 'https://api.openai.com', models: ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo'] },
-    gemini: { url: '', models: ['gemini-pro', 'gemini-1.5-flash', 'gemini-1.5-pro'] },
-    claude: { url: '', models: ['claude-3-haiku-20240307', 'claude-3-sonnet-20240229', 'claude-3-opus-20240229', 'claude-3-5-sonnet-20241022'] },
-    ollama: { url: 'http://localhost:11434', models: ['llama3.2:1b', 'llama3.2:3b', 'llama3.1:8b', 'mistral:7b', 'codellama:7b', 'gemma4:e2b', 'gemma4:12b', 'gemma4:e4b'] },
-    opencode: { url: 'https://opencode.ai/zen', models: ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free'] },
-    groq: { url: 'https://api.groq.com/openai/v1', models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'] },
-    huggingface: { url: 'https://api-inference.huggingface.co/v1', models: ['meta-llama/Llama-3.2-3B-Instruct', 'mistralai/Mistral-7B-Instruct-v0.3', 'HuggingFaceH4/zephyr-7b-beta'] },
-    cloudflare: { url: '', models: ['@cf/meta/llama-3.2-3b-instruct', '@cf/mistral/mistral-7b-instruct-v0.1', '@cf/meta/llama-3.2-1b-instruct'] },
+  const providerDefaults: Record<string, { url: string; models: string[]; default_model?: string }> = {
+    openai: { url: 'https://api.openai.com', models: OPENAI_MODELS, default_model: 'gpt-4o' },
+    gemini: { url: '', models: GEMINI_MODELS, default_model: 'gemini-2.0-flash' },
+    claude: { url: '', models: CLAUDE_MODELS, default_model: 'claude-3-5-sonnet-20241022' },
+    ollama: { url: 'http://localhost:11434', models: [] },
+    opencode: { url: 'https://opencode.ai/zen', models: OPENCODE_MODELS, default_model: 'big-pickle' },
+    groq: { url: 'https://api.groq.com/openai/v1', models: GROQ_MODELS, default_model: 'llama-3.3-70b-versatile' },
+    huggingface: { url: 'https://api-inference.huggingface.co/v1', models: HUGGINGFACE_MODELS, default_model: 'meta-llama/Llama-3.2-3B-Instruct' },
+    cloudflare: { url: '', models: CLOUDFLARE_MODELS, default_model: '@cf/meta/llama-3.2-3b-instruct' },
   }
 
   const typeChanged = (t: string) => { setType(t); setApiUrl(providerDefaults[t]?.url || '') }
@@ -700,7 +697,7 @@ function ProvidersTab({ providers, onUpdate }: { providers: any[]; onUpdate: () 
       </div>
       {showAdd && (
         <div className="glass-card" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{['ollama', 'openai', 'gemini', 'claude', 'opencode', 'groq', 'huggingface', 'cloudflare'].map(t => (
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{PROVIDER_TYPES.map(t => (
             <button key={t} className={`btn btn-sm ${type === t ? 'btn-primary' : 'btn-ghost'}`} onClick={() => typeChanged(t)} style={{ textTransform: 'capitalize', fontSize: 10 }}>{t}</button>
           ))}</div>
           <input placeholder="Display name" value={name} onChange={e => setName(e.target.value)} style={{ height: 32, fontSize: 13 }} />

@@ -234,7 +234,13 @@ class ClaudeProvider(BaseProvider):
         except: yield '\n[Stream error]'
 
     def list_models(self):
-        return ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20241022']
+        return [
+            'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022',
+            'claude-3-opus-20240229', 'claude-3-sonnet-20240229',
+            'claude-3-haiku-20240307',
+            'claude-4-opus', 'claude-4-sonnet',
+            'claude-3-5-sonnet-v2', 'claude-3-5-haiku-v2',
+        ]
 
 PROVIDER_MAP = {
     'ollama': OllamaProvider,

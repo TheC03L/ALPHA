@@ -4,6 +4,7 @@ from models.models import AIModel, ChatMessage, ChatAttachment, AiProvider, Gith
 from flask_login import login_required, current_user
 from config import Config
 from api.ai_providers import get_provider, get_provider_from_db, OllamaProvider
+from api.ai_models import OPENCODE_MODELS, KEYLESSAI_MODELS, GROQ_MODELS, HUGGINGFACE_MODELS, CLOUDFLARE_MODELS
 import requests, json, os, uuid, datetime, io, base64
 try: import subprocess, platform, psutil
 except: pass
@@ -22,14 +23,14 @@ def get_provider_for_user(provider_id=None, data=None):
                 'api_key': d.get('provider_api_key', ''),
                 'api_url': d.get('provider_api_url', 'https://opencode.ai/zen'),
                 'default_model': d.get('model', 'big-pickle')
-            }), ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
+            }), OPENCODE_MODELS
         if provider_id == '__keylessai__':
             from .ai_providers import OpenAICompatibleProvider
             return OpenAICompatibleProvider({
                 'api_key': 'not-needed',
                 'api_url': 'https://keylessai.thryx.workers.dev/v1',
                 'default_model': 'openai-fast'
-            }), ['openai-fast', 'step-3.5-flash:free', 'gemma3-270m:free', 'gpt-5-nano', 'gpt-4o-mini', 'gpt-3.5-turbo']
+            }), KEYLESSAI_MODELS
         if provider_id == '__ollama__':
             return OllamaProvider(), []
         dp = AiProvider.query.filter_by(id=provider_id, user_id=current_user.id, enabled=True).first()
@@ -68,12 +69,12 @@ def status():
         result['providers'].append({
             'id': '__opencode__', 'name': 'OpenCode Zen', 'type': 'openai',
             'default_model': 'big-pickle',
-            'models': ['big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free', 'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free', 'north-mini-code-free']
+            'models': OPENCODE_MODELS
         })
         result['providers'].append({
             'id': '__keylessai__', 'name': 'KeylessAI (free)', 'type': 'openai',
             'default_model': 'openai-fast',
-            'models': ['openai-fast', 'step-3.5-flash:free', 'gemma3-270m:free', 'gpt-5-nano', 'gpt-4o-mini', 'gpt-3.5-turbo']
+            'models': KEYLESSAI_MODELS
         })
         result['active_provider'] = {'id': '__keylessai__', 'name': 'KeylessAI (free)', 'type': 'openai', 'model': 'openai-fast'}
     return jsonify(result)
