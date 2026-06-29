@@ -143,6 +143,12 @@ export interface CustomizationConfig {
   fontSize: 'small' | 'medium' | 'large'
   showLabels: boolean
   showAnimations: boolean
+  wallpaperOpacity: number
+  wallpaperBlend: 'normal' | 'overlay' | 'soft-light' | 'hard-light'
+  bgGradientIntensity: number
+  noiseOverlay: boolean
+  glassBorderOpacity: number
+  glowSpread: number
 }
 
 export interface AIProvider {

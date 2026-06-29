@@ -61,6 +61,28 @@ export const WALLPAPERS = [
   { id: 'wallpaper-cherry', name: 'Cherry', icon: '🌸' },
   { id: 'wallpaper-snow', name: 'Snow', icon: '❄️' },
   { id: 'wallpaper-fire', name: 'Fire', icon: '🔥' },
+  { id: 'wallpaper-matrix-rain', name: 'Matrix Rain', icon: '🌧' },
+  { id: 'wallpaper-circuit-board', name: 'Circuit Board', icon: '⚙' },
+  { id: 'wallpaper-geometric', name: 'Geometric', icon: '🔷' },
+  { id: 'wallpaper-honeycomb', name: 'Honeycomb', icon: '⬡' },
+  { id: 'wallpaper-polka-dot', name: 'Polka Dot', icon: '●' },
+  { id: 'wallpaper-plaid', name: 'Plaid', icon: '🏁' },
+  { id: 'wallpaper-tartan', name: 'Tartan', icon: '🏴' },
+  { id: 'wallpaper-camouflage', name: 'Camouflage', icon: '🟩' },
+  { id: 'wallpaper-galaxy', name: 'Galaxy', icon: '🌌' },
+  { id: 'wallpaper-nebula', name: 'Nebula', icon: '🌈' },
+  { id: 'wallpaper-parchment', name: 'Parchment', icon: '📜' },
+  { id: 'wallpaper-marble', name: 'Marble', icon: '◍' },
+  { id: 'wallpaper-wood-texture', name: 'Wood Texture', icon: '🪵' },
+  { id: 'wallpaper-brick-wall', name: 'Brick Wall', icon: '🧱' },
+  { id: 'wallpaper-wave-grid', name: 'Wave Grid', icon: '〰' },
+  { id: 'wallpaper-constellation', name: 'Constellation', icon: '✦' },
+  { id: 'wallpaper-topographic', name: 'Topographic', icon: '◠' },
+  { id: 'wallpaper-morse-code', name: 'Morse Code', icon: '▄' },
+  { id: 'wallpaper-bar-code', name: 'Bar Code', icon: '▍' },
+  { id: 'wallpaper-blue-print', name: 'Blue Print', icon: '📐' },
+  { id: 'wallpaper-led-matrix', name: 'LED Matrix', icon: '🔲' },
+  { id: 'wallpaper-pixel-heart', name: 'Pixel Heart', icon: '❤' },
 ]
 
 const DEFAULT_CONFIG: CustomizationConfig = {
@@ -76,6 +98,12 @@ const DEFAULT_CONFIG: CustomizationConfig = {
   fontSize: 'medium',
   showLabels: true,
   showAnimations: true,
+  wallpaperOpacity: 30,
+  wallpaperBlend: 'overlay',
+  bgGradientIntensity: 20,
+  noiseOverlay: false,
+  glassBorderOpacity: 50,
+  glowSpread: 50,
 }
 
 export function useTheme() {
@@ -112,6 +140,18 @@ export function useTheme() {
     document.documentElement.style.setProperty('--anim-speed-fast', `${animSpeed * 0.3}s`)
 
     document.documentElement.style.setProperty('--font-size-mult', config.fontSize === 'small' ? '0.9' : config.fontSize === 'large' ? '1.1' : '1')
+
+    document.documentElement.style.setProperty('--wallpaper-opacity', String(config.wallpaperOpacity / 100))
+    document.documentElement.style.setProperty('--wallpaper-blend', config.wallpaperBlend)
+    document.documentElement.style.setProperty('--bg-gradient-intensity', String(config.bgGradientIntensity / 100))
+    document.documentElement.style.setProperty('--glass-border-opacity', String(config.glassBorderOpacity / 100))
+    document.documentElement.style.setProperty('--glow-spread', `${config.glowSpread}%`)
+
+    if (config.noiseOverlay) {
+      document.documentElement.style.setProperty('--noise-overlay', '1')
+    } else {
+      document.documentElement.style.setProperty('--noise-overlay', '0')
+    }
 
     localStorage.setItem('alpha-theme', theme)
     localStorage.setItem('alpha-wallpaper', wallpaper)

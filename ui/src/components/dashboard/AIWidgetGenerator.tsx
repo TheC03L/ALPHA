@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import { Sparkles, X, Brain, Zap, Palette, Cpu, Wifi, TrendingUp, Shield, Activity, Globe, Star, Heart } from 'lucide-react'
 import api from '../../utils/api'
 import { DashboardWidget, AIProvider } from '../../types'
+import { VIRTUAL_PROVIDERS } from '../../data/aiModels'
 
 const PRESET_PROMPTS = [
   { label: 'System', icon: Cpu, prompt: 'CPU load, memory usage, temperature, processes, uptime, disk I/O' },
@@ -12,7 +13,7 @@ const PRESET_PROMPTS = [
   { label: 'Custom', icon: Activity, prompt: '' },
 ]
 
-const COLORS = ['#6c5ce7','#3b82f6','#10b981','#f59e0b','#ec4899','#14b8a6','#ef4444','#f43f5e','#d97706','#06b6d4','#4f46e5','#d946ef','#ff6b6b','#00d2d3','#0984e3','#27ae60','#a29bfe']
+const COLORS = ['#6c5ce7','#3b82f6','#10b981','#f59e0b','#ec4899','#14b8a6','#ef4444','#f43f5e','#d97709','#06b6d4','#4f46e5','#d946ef','#ff6b6b','#00d2d3','#0984e3','#27ae60','#a29bfe']
 
 function parseWidgets(text: string): DashboardWidget[] {
   const lines = text.split('\n').filter(l => l.trim())
@@ -42,6 +43,24 @@ interface Props {
   onClose: () => void
 }
 
+const VIRTUAL_IDS = new Set(VIRTUAL_PROVIDERS.map(vp => vp.id))
+const CLOUD_TYPES = new Set(['openai', 'gemini', 'claude', 'groq', 'huggingface', 'cloudflare', 'opencode'])
+
+function isCloudProvider(p: AIProvider): boolean {
+  return VIRTUAL_IDS.has(p.id) || CLOUD_TYPES.has(p.type)
+}
+
+function findBestProvider(providers: AIProvider[]): AIProvider | undefined {
+  if (!providers.length) return undefined
+  for (const p of providers) {
+    if (VIRTUAL_IDS.has(p.id)) return p
+  }
+  for (const p of providers) {
+    if (CLOUD_TYPES.has(p.type)) return p
+  }
+  return providers[0]
+}
+
 export default function AIWidgetGenerator({ providers, onGenerate, onClose }: Props) {
   const [prompt, setPrompt] = useState('')
   const [count, setCount] = useState(50)
@@ -50,7 +69,7 @@ export default function AIWidgetGenerator({ providers, onGenerate, onClose }: Pr
   const [providerId, setProviderId] = useState('')
   const [error, setError] = useState('')
 
-  const activeProvider = providers.find(p => p.id === providerId) || providers[0]
+  const activeProvider = providers.find(p => p.id === providerId) || findBestProvider(providers)
 
   const handleGenerate = useCallback(async () => {
     if (!activeProvider) { setError('No AI provider configured. Go to AI Studio to set one up.'); return }
@@ -166,14 +185,20 @@ export default function AIWidgetGenerator({ providers, onGenerate, onClose }: Pr
             value={count} onChange={e => setCount(Math.min(100000, Math.max(1, parseInt(e.target.value) || 1)))}
             style={{ width: 80, height: 36, textAlign: 'center', fontSize: 13 }} />
         </div>
-        {providers.length > 0 && (
-          <select value={providerId || providers[0]?.id || ''}
+        {providers.length > 0 ? (
+          <select value={activeProvider?.id || ''}
             onChange={e => setProviderId(e.target.value)}
-            style={{ width: 200, height: 36, fontSize: 13 }}>
+            style={{ width: 240, height: 36, fontSize: 13 }}>
             {providers.map(p => (
-              <option key={p.id} value={p.id}>{p.name} ({p.type})</option>
+              <option key={p.id} value={p.id}>
+                {p.name} ({p.type}) [{isCloudProvider(p) ? 'Cloud' : 'Local'}]
+              </option>
             ))}
           </select>
+        ) : (
+          <div style={{ fontSize: 13, color: 'var(--danger)', padding: '6px 10px', background: 'var(--danger-dim)', borderRadius: 6 }}>
+            No AI provider configured. Go to AI Studio to set one up.
+          </div>
         )}
       </div>
 
