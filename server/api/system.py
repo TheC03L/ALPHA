@@ -95,3 +95,38 @@ def apply_update():
         return jsonify({'error': 'Update timed out'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@system_bp.route('/dev-update', methods=['POST'])
+def dev_update():
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    try:
+        out_lines = []
+        def log(msg):
+            out_lines.append(msg)
+            print(msg, flush=True)
+        log("=== Dev Update ===")
+        log(f"Dir: {base_dir}")
+        log("Pulling latest code...")
+        r = subprocess.run(['git', 'pull'], capture_output=True, text=True, cwd=base_dir, timeout=60)
+        log(r.stdout)
+        if r.stderr: log(f"STDERR: {r.stderr}")
+        if r.returncode != 0:
+            return jsonify({'output': '\n'.join(out_lines), 'error': 'Git pull failed'}), 500
+        log("Installing npm packages...")
+        r = subprocess.run(['npm', 'install'], capture_output=True, text=True, cwd=os.path.join(base_dir, 'ui'), timeout=120)
+        if r.stdout: log(r.stdout[-1000:])
+        if r.stderr: log(r.stderr[-1000:])
+        log("Building frontend...")
+        r = subprocess.run(['npm', 'run', 'build'], capture_output=True, text=True, cwd=os.path.join(base_dir, 'ui'), timeout=300)
+        if r.stdout: log(r.stdout[-1000:])
+        if r.stderr: log(r.stderr[-1000:])
+        if r.returncode != 0:
+            return jsonify({'output': '\n'.join(out_lines), 'error': 'Build failed'}), 500
+        log("=== Update Complete ===")
+        log("Restart the server to apply changes.")
+        return jsonify({'output': '\n'.join(out_lines)})
+    except subprocess.TimeoutExpired:
+        return jsonify({'output': '\n'.join(out_lines) if out_lines else '', 'error': 'Timed out'}), 500
+    except Exception as e:
+        import traceback
+        return jsonify({'output': '\n'.join(out_lines) if out_lines else '', 'error': str(e), 'traceback': traceback.format_exc()}), 500

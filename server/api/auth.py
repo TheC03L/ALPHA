@@ -55,6 +55,11 @@ def login():
             pass
         return jsonify({'error': str(e), 'traceback': tb}), 500
 
+@auth_bp.route('/has-users')
+def has_users():
+    count = User.query.count()
+    return jsonify({'hasUsers': count > 0})
+
 @auth_bp.route('/logout', methods=['POST'])
 @login_required
 def logout():

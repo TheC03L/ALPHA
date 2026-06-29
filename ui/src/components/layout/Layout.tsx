@@ -7,15 +7,14 @@ import api from '../../utils/api'
 import {
   LayoutDashboard, HardDrive, Brain, Monitor, Puzzle,
   Grid3X3, Settings, LogOut, Bell, Users, BellDot, Trash2,
-  Link, Wrench, Server, Download, Search, ChevronLeft,
-  ChevronRight, Sun, Moon, PanelLeftClose, PanelLeft,
+  Wrench, Download, Search, ChevronLeft,
+  ChevronRight, Sun, Moon,
   Network, Share2, Shield, Globe, ArrowLeftRight,
   Music, Video, Image, Podcast,
   Bookmark, FileText, Calendar, Calculator,
   Clock, Star, Folder,
   ScrollText, Database, Lock,
-  Pin, ExternalLink, Copy,
-  GripVertical, Maximize,
+  Pin, ExternalLink, Copy, Maximize,
   ChevronDown, Activity, ShieldCheck,
   User, X as XIcon
 } from 'lucide-react'
@@ -94,6 +93,19 @@ function findItem(items: NavItem[], path: string): string | undefined {
   return undefined
 }
 
+function isActivePath(item: NavItem, currentPath: string): boolean {
+  if (!item.path) return false
+  if (item.path === '/') return currentPath === '/'
+  return currentPath === item.path || currentPath.startsWith(item.path + '/')
+}
+
+function isChildPathActive(item: NavItem, currentPath: string): boolean {
+  if (!item.children) return false
+  return item.children.some(child =>
+    child.path && (currentPath === child.path || currentPath.startsWith(child.path + '/'))
+  )
+}
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -120,21 +132,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { can } = usePermissions()
 
   const pathToPerm: Record<string, string> = {
-    '/': 'dashboard',
-    '/storage': 'storage',
-    '/ai': 'aiStudio',
-    '/devices': 'devices',
-    '/extensions': 'extensions',
-    '/apps': 'apps',
-    '/system-tools': 'systemTools',
-    '/processes': 'processes',
-    '/downloads': 'downloads',
-    '/tools': 'tools',
-    '/shares': 'shares',
-    '/trash': 'trash',
-    '/notifications': 'notifications',
-    '/settings': 'settings',
-    '/users': 'users',
+    '/': 'dashboard', '/storage': 'storage', '/ai': 'aiStudio',
+    '/devices': 'devices', '/extensions': 'extensions', '/apps': 'apps',
+    '/system-tools': 'systemTools', '/processes': 'processes',
+    '/downloads': 'downloads', '/tools': 'tools', '/shares': 'shares',
+    '/trash': 'trash', '/notifications': 'notifications',
+    '/settings': 'settings', '/users': 'users',
   }
 
   useEffect(() => {
@@ -165,15 +168,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setShowNotifs(false)
-      }
-      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
-        setContextMenu(null)
-      }
-      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
-        setShowAvatarMenu(false)
-      }
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifs(false)
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) setContextMenu(null)
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) setShowAvatarMenu(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -203,7 +200,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const handleContextMenu = (e: React.MouseEvent, item: NavItem) => {
     e.preventDefault()
-    setContextMenu({ x: e.clientX, y: e.clientY, item })
+    const menuW = 180, menuH = 160
+    const x = Math.min(e.clientX, window.innerWidth - menuW - 16)
+    const y = Math.min(e.clientY, window.innerHeight - menuH - 16)
+    setContextMenu({ x: Math.max(0, x), y: Math.max(0, y), item })
   }
 
   const isPinned = (label: string) => favorites.includes(label)
@@ -230,11 +230,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen()
-    } else {
-      document.exitFullscreen()
-    }
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen()
+    else document.exitFullscreen()
   }
 
   const pageTitle = findItem(navItems, location.pathname) || 'Dashboard'
@@ -250,79 +247,53 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const renderNavItem = (item: NavItem, depth = 0) => {
     if (!item.label) return null
-    const active = item.path === location.pathname
+    if (collapsed && depth > 0) return null
+    const active = isActivePath(item, location.pathname)
+    const childActive = isChildPathActive(item, location.pathname)
     const hasChildren = item.children && item.children.length > 0
-    const expanded = expandedItems.has(item.label)
+    const expanded = expandedItems.has(item.label) || (childActive && !collapsed)
     const isFav = isPinned(item.label)
     const isHovered = hoveredNavLabel === item.label
 
     return (
-      <div key={item.label}>
-        <button
-          className={`nav-item ${active ? 'active' : ''}`}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '6px 12px', width: '100%', textAlign: 'left',
-            paddingLeft: 12 + depth * 16,
-            borderRadius: 8, border: 'none',
-            background: active ? 'var(--accent-dim)' : 'transparent',
-            color: active ? 'var(--accent)' : 'var(--text-secondary)',
-            cursor: 'pointer', fontSize: 13, fontWeight: active ? 600 : 400,
-            transition: 'all 0.2s', position: 'relative',
-            opacity: collapsed && depth > 0 ? 0 : 1,
-            pointerEvents: collapsed && depth > 0 ? 'none' : 'auto',
-          }}
+      <div key={item.label} className={`nav-item-wrapper ${depth > 0 ? 'nav-child' : ''}`}>
+        <div
+          className={`nav-item ${active ? 'active' : ''} ${childActive ? 'child-active' : ''} ${collapsed ? 'collapsed' : ''}`}
           onClick={() => {
-            if (hasChildren) {
-              toggleExpand(item.label!)
-            } else if (item.path) {
-              navigate(item.path)
-            }
+            if (item.path && !collapsed) navigate(item.path)
+            else if (item.path && collapsed) navigate(item.path)
           }}
           onContextMenu={(e) => handleContextMenu(e, item)}
           onMouseEnter={() => setHoveredNavLabel(item.label!)}
           onMouseLeave={() => setHoveredNavLabel(null)}
           title={collapsed ? item.label : undefined}
         >
-          {hasChildren ? (
-            <ChevronDown
-              size={14}
-              style={{
-                flexShrink: 0,
+          {item.icon && <item.icon size={18} />}
+          {!collapsed && (
+            <span className="nav-label">{item.label}</span>
+          )}
+          {!collapsed && item.label === 'Notifications' && unread > 0 && (
+            <span className="badge badge-accent nav-badge">{unread}</span>
+          )}
+          {!collapsed && isFav && (
+            <Star size={12} className="nav-star" />
+          )}
+          {!collapsed && hasChildren && (
+            <button
+              className="nav-chevron"
+              onClick={(e) => { e.stopPropagation(); toggleExpand(item.label!) }}
+              title={expanded ? 'Collapse section' : 'Expand section'}
+            >
+              <ChevronDown size={14} style={{
                 transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)',
                 transition: 'transform 0.2s'
-              }}
-            />
-          ) : (
-            depth > 0 && <span style={{ width: 14, flexShrink: 0 }} />
+              }} />
+            </button>
           )}
-          {item.icon && <item.icon size={18} style={{ flexShrink: 0 }} />}
-          {!collapsed && (
-            <>
-              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {item.label}
-              </span>
-              {item.label === 'Notifications' && unread > 0 && (
-                <span className="badge badge-accent" style={{ padding: '1px 6px', fontSize: 10, flexShrink: 0 }}>{unread}</span>
-              )}
-              {isFav && (
-                <Star size={12} style={{ fill: 'var(--accent)', color: 'var(--accent)', flexShrink: 0 }} />
-              )}
-              <GripVertical
-                size={12}
-                style={{
-                  flexShrink: 0, cursor: 'grab',
-                  opacity: isHovered ? 1 : 0.25,
-                  transition: 'opacity 0.2s',
-                  color: 'var(--text-muted)',
-                }}
-              />
-            </>
-          )}
-        </button>
-        {hasChildren && expanded && item.children && !collapsed && (
-          <div style={{ overflow: 'hidden' }}>
-            {item.children.map(child => renderNavItem(child, depth + 1))}
+        </div>
+        {hasChildren && expanded && !collapsed && (
+          <div className="nav-children">
+            {item.children!.map(child => renderNavItem(child, depth + 1))}
           </div>
         )}
       </div>
@@ -351,101 +322,53 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {!collapsed && <span>ALPHA</span>}
         </div>
 
-        {favoriteItems.length > 0 && !collapsed && (
-          <>
-            <div className="nav-section">Favorites</div>
-            {favoriteItems.map(item => (
-              <button
-                key={`fav-${item.label}`}
-                className={`nav-item ${item.path === location.pathname ? 'active' : ''}`}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '6px 12px', width: '100%', textAlign: 'left',
-                  borderRadius: 8, border: 'none',
-                  background: item.path === location.pathname ? 'var(--accent-dim)' : 'transparent',
-                  color: item.path === location.pathname ? 'var(--accent)' : 'var(--text-secondary)',
-                  cursor: 'pointer', fontSize: 13, fontWeight: item.path === location.pathname ? 600 : 400,
-                  transition: 'all 0.2s', position: 'relative',
-                }}
-                onClick={() => item.path && navigate(item.path)}
-              >
-                {item.icon && <item.icon size={18} style={{ flexShrink: 0 }} />}
-                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {item.label}
-                </span>
-                <button
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    padding: 2, color: 'var(--text-muted)', flexShrink: 0,
-                    display: 'flex', alignItems: 'center'
-                  }}
-                  onClick={(e) => { e.stopPropagation(); togglePin(item.label!) }}
-                  title="Unpin"
+        <div className="sidebar-nav">
+          {favoriteItems.length > 0 && !collapsed && (
+            <div className="sidebar-favorites">
+              {favoriteItems.map(item => (
+                <div
+                  key={`fav-${item.label}`}
+                  className={`nav-item ${isActivePath(item, location.pathname) ? 'active' : ''}`}
+                  onClick={() => item.path && navigate(item.path)}
                 >
-                  <XIcon size={12} />
-                </button>
-              </button>
-            ))}
-            <div style={{ height: 1, background: 'var(--glass-border)', margin: '4px 12px' }} />
-          </>
-        )}
-
-        {visibleItems.map((item, i) => renderSidebarItem(item, i))}
-
-        {user?.role === 'admin' && (
-          <>
-            <div className="nav-section" style={{
-              paddingLeft: collapsed ? 0 : 12,
-              textAlign: collapsed ? 'center' : 'left',
-            }}>
-              {collapsed ? '—' : 'Admin'}
+                  {item.icon && <item.icon size={18} />}
+                  <span className="nav-label">{item.label}</span>
+                  <button className="nav-unpin" onClick={(e) => { e.stopPropagation(); togglePin(item.label!) }} title="Remove from favorites">
+                    <XIcon size={12} />
+                  </button>
+                </div>
+              ))}
             </div>
-            <button
-              className={`nav-item ${location.pathname === '/admin' ? 'active' : ''}`}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '6px 12px', width: '100%', textAlign: 'left',
-                borderRadius: 8, border: 'none',
-                background: location.pathname === '/admin' ? 'var(--accent-dim)' : 'transparent',
-                color: location.pathname === '/admin' ? 'var(--accent)' : 'var(--text-secondary)',
-                cursor: 'pointer', fontSize: 13, fontWeight: location.pathname === '/admin' ? 600 : 400,
-                transition: 'all 0.2s', position: 'relative',
-              }}
-              onClick={() => navigate('/admin')}
-              title={collapsed ? 'Admin Panel' : undefined}
-            >
-              <Shield size={18} />
-              {!collapsed && <span>Admin Panel</span>}
-            </button>
-          </>
-        )}
+          )}
 
-        <div style={{ flex: 1 }} />
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 12px', borderTop: '1px solid var(--glass-border)',
-          margin: '0 -14px', paddingLeft: collapsed ? 12 : 24, paddingRight: collapsed ? 12 : 24,
-          transition: 'padding var(--transition)',
-          justifyContent: collapsed ? 'center' : 'flex-start'
-        }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--accent-dim), var(--accent))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14, fontWeight: 700, color: 'white', flexShrink: 0
-          }}>
-            {user?.username?.[0]?.toUpperCase()}
-          </div>
-          {!collapsed && (
+          {visibleItems.map((item, i) => renderSidebarItem(item, i))}
+
+          {user?.role === 'admin' && (
             <>
-              <div className="sidebar-user-info" style={{ flex: 1, fontSize: 13, minWidth: 0, transition: 'opacity var(--transition)' }}>
-                <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.username}</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'capitalize' }}>{user?.role}</div>
-              </div>
-              <button className="btn btn-ghost btn-icon btn-sm" onClick={logout} title="Logout" style={{ flexShrink: 0 }}>
-                <LogOut size={15} />
-              </button>
+              {renderSidebarItem({ section: 'Admin' } as NavItem, -1)}
+              {renderNavItem({ label: 'Admin Panel', icon: Shield, path: '/admin' } as NavItem)}
             </>
+          )}
+        </div>
+
+        <div className="sidebar-footer">
+          {user && (
+            <div className="sidebar-user">
+              <div className="sidebar-avatar">
+                {user.username?.[0]?.toUpperCase()}
+              </div>
+              {!collapsed && (
+                <>
+                  <div className="sidebar-user-info">
+                    <div className="sidebar-user-name">{user.username}</div>
+                    <div className="sidebar-user-role">{user.role}</div>
+                  </div>
+                  <button className="btn btn-ghost btn-icon btn-sm" onClick={logout} title="Sign out">
+                    <LogOut size={15} />
+                  </button>
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -466,47 +389,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </button>
 
       {contextMenu && (
-        <div
-          ref={contextMenuRef}
-          style={{
-            position: 'fixed', left: contextMenu.x, top: contextMenu.y,
-            zIndex: 1000, background: 'var(--bg-card)',
-            border: '1px solid var(--glass-border)', borderRadius: 8,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-            padding: 4, minWidth: 180,
-          }}
-          onClick={() => setContextMenu(null)}
-        >
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', cursor: 'pointer', borderRadius: 6, fontSize: 13, transition: 'background 0.15s' }}
-            onClick={() => openInNewTab(contextMenu.item.path)}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
+        <div ref={contextMenuRef} className="context-menu" onClick={() => setContextMenu(null)}>
+          <div className="context-menu-item" onClick={() => openInNewTab(contextMenu.item.path)}>
             <ExternalLink size={14} /> Open in New Tab
           </div>
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', cursor: 'pointer', borderRadius: 6, fontSize: 13, transition: 'background 0.15s' }}
-            onClick={() => copyLink(contextMenu.item.path)}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
+          <div className="context-menu-item" onClick={() => copyLink(contextMenu.item.path)}>
             <Copy size={14} /> Copy Link
           </div>
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', cursor: 'pointer', borderRadius: 6, fontSize: 13, transition: 'background 0.15s' }}
-            onClick={() => togglePin(contextMenu.item.label!)}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
+          <div className="context-menu-item" onClick={() => togglePin(contextMenu.item.label!)}>
             <Pin size={14} /> {isPinned(contextMenu.item.label!) ? 'Unpin from Top' : 'Pin to Top'}
           </div>
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', cursor: 'pointer', borderRadius: 6, fontSize: 13, transition: 'background 0.15s' }}
-            onClick={() => removeFromSidebar(contextMenu.item.label!)}
-            onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-          >
+          <div className="context-menu-item" onClick={() => removeFromSidebar(contextMenu.item.label!)}>
             <XIcon size={14} /> Remove from Sidebar
           </div>
         </div>
@@ -529,7 +422,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </h2>
           </div>
           <div className="header-right">
-            <button className="btn btn-ghost btn-icon" onClick={toggleFullscreen} title="Fullscreen">
+            <button className="btn btn-ghost btn-icon" onClick={toggleFullscreen} title="Toggle fullscreen">
               <Maximize size={18} />
             </button>
             <button className="btn btn-ghost btn-icon" onClick={toggleDarkMode} title={darkMode ? 'Light mode' : 'Dark mode'}>
@@ -594,7 +487,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <button
                 className="btn btn-ghost btn-icon"
                 onClick={() => setShowAvatarMenu(!showAvatarMenu)}
-                title="Account"
+                title="Account menu"
                 style={{
                   width: 34, height: 34, borderRadius: '50%',
                   background: 'linear-gradient(135deg, var(--accent-dim), var(--accent))',
@@ -614,27 +507,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   padding: 4, minWidth: 160,
                 }}>
                   <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', cursor: 'pointer', borderRadius: 6, fontSize: 13, transition: 'background 0.15s' }}
+                    className="context-menu-item"
                     onClick={() => { navigate('/profile'); setShowAvatarMenu(false) }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
                     <User size={14} /> Profile
                   </div>
                   <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', cursor: 'pointer', borderRadius: 6, fontSize: 13, transition: 'background 0.15s' }}
+                    className="context-menu-item"
                     onClick={() => { navigate('/settings'); setShowAvatarMenu(false) }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
                     <Settings size={14} /> Settings
                   </div>
                   <div style={{ height: 1, background: 'var(--glass-border)', margin: '4px 0' }} />
                   <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', cursor: 'pointer', borderRadius: 6, fontSize: 13, color: 'var(--danger)', transition: 'background 0.15s' }}
+                    className="context-menu-item"
+                    style={{ color: 'var(--danger)' }}
                     onClick={() => { logout(); setShowAvatarMenu(false) }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-dim)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                   >
                     <LogOut size={14} /> Sign Out
                   </div>
@@ -643,7 +531,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </div>
-        <div className="content" onClick={() => setShowNotifs(false)}>
+        <div className="content">
           {children}
         </div>
       </div>

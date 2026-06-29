@@ -49,6 +49,7 @@ function AppRoutes() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/storage" element={<StoragePage />} />
+              <Route path="/storage/*" element={<StoragePage />} />
               <Route path="/ai" element={<AIStudio />} />
               <Route path="/devices" element={<DevicesPage />} />
               <Route path="/extensions" element={<ExtensionsPage />} />
@@ -61,6 +62,30 @@ function AppRoutes() {
               <Route path="/tools" element={<ToolsPage />} />
               <Route path="/system-tools" element={<SystemToolsPage />} />
               <Route path="/downloads" element={<DownloadsPage />} />
+              <Route path="/profile" element={<Navigate to="/settings" />} />
+              <Route path="/network" element={<Navigate to="/devices" />} />
+              <Route path="/network/*" element={<Navigate to="/devices" />} />
+              <Route path="/music" element={<Navigate to="/" />} />
+              <Route path="/music/*" element={<Navigate to="/" />} />
+              <Route path="/admin" element={<Navigate to="/settings" />} />
+              <Route path="/processes" element={<Navigate to="/system-tools" />} />
+              <Route path="/firewall" element={<Navigate to="/system-tools" />} />
+              <Route path="/dns" element={<Navigate to="/devices" />} />
+              <Route path="/proxy" element={<Navigate to="/devices" />} />
+              <Route path="/videos" element={<Navigate to="/" />} />
+              <Route path="/photos" element={<Navigate to="/" />} />
+              <Route path="/podcasts" element={<Navigate to="/" />} />
+              <Route path="/bookmarks" element={<Navigate to="/" />} />
+              <Route path="/notes" element={<Navigate to="/" />} />
+              <Route path="/calendar" element={<Navigate to="/" />} />
+              <Route path="/calculator" element={<Navigate to="/" />} />
+              <Route path="/recent" element={<Navigate to="/" />} />
+              <Route path="/favorites" element={<Navigate to="/" />} />
+              <Route path="/files" element={<Navigate to="/" />} />
+              <Route path="/permissions" element={<Navigate to="/users" />} />
+              <Route path="/audit" element={<Navigate to="/" />} />
+              <Route path="/backup" element={<Navigate to="/storage" />} />
+              <Route path="/encryption" element={<Navigate to="/settings" />} />
               <Route path="*" element={<Dashboard />} />
             </Routes>
           </Layout>
