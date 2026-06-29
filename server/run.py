@@ -3,11 +3,12 @@ import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from main import create_app, socketio
+from main import create_app, socketio, ErrorCatchMiddleware
 from config import Config
 
 try:
     app = create_app()
+    app.wsgi_app = ErrorCatchMiddleware(app.wsgi_app)
 except Exception as e:
     import traceback
     print(f'ALPHA startup failed: {e}', flush=True)

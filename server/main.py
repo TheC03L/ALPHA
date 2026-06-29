@@ -114,15 +114,26 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    @app.errorhandler(Exception)
-    def handle_error(e):
-        tb = traceback.format_exc()
-        print("SERVER ERROR:", tb)
-        return jsonify({'error': 'Server error', 'detail': str(e), 'traceback': tb}), 500
-
     from api.monitor import start_collector
     start_collector(app)
     from api.storage import start_drive_watcher
     start_drive_watcher(app)
 
     return app
+
+# WSGI-level error catcher (used by run.py)
+class ErrorCatchMiddleware:
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+    def __call__(self, environ, start_response):
+        try:
+            return self.wsgi_app(environ, start_response)
+        except Exception as e:
+            tb = traceback.format_exc()
+            print("=== SERVER CRASH ===")
+            print(tb)
+            print("====================")
+            body = jsonify({'error': str(e), 'traceback': tb}).get_data()
+            headers = [('Content-Type', 'application/json'), ('Content-Length', str(len(body)))]
+            start_response('500 INTERNAL SERVER ERROR', headers)
+            return [body]
