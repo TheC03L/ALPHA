@@ -104,6 +104,7 @@ const DEFAULT_CONFIG: CustomizationConfig = {
   noiseOverlay: false,
   glassBorderOpacity: 50,
   glowSpread: 50,
+  customWallpaper: '',
 }
 
 export function useTheme() {
@@ -153,6 +154,15 @@ export function useTheme() {
       document.documentElement.style.setProperty('--noise-overlay', '0')
     }
 
+    if (config.customWallpaper) {
+      document.body.style.backgroundImage = `url(${config.customWallpaper})`
+      document.body.style.backgroundSize = 'cover'
+      document.body.style.backgroundPosition = 'center'
+      document.body.style.backgroundRepeat = 'no-repeat'
+    } else {
+      document.body.style.backgroundImage = ''
+    }
+
     localStorage.setItem('alpha-theme', theme)
     localStorage.setItem('alpha-wallpaper', wallpaper)
     localStorage.setItem('alpha-config', JSON.stringify(config))
@@ -192,6 +202,15 @@ export function useTheme() {
     updateConfig({ darkMode: !config.darkMode })
   }, [config.darkMode, updateConfig])
 
+  const uploadWallpaper = useCallback(async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const res = await api.post('/wallpaper/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    await updateConfig({ customWallpaper: res.data.url })
+  }, [updateConfig])
+
   return {
     theme, setTheme,
     wallpaper, setWallpaper,
@@ -199,6 +218,7 @@ export function useTheme() {
     darkMode: config.darkMode,
     toggleDarkMode,
     providers,
+    uploadWallpaper,
     THEMES, WALLPAPERS,
   }
 }

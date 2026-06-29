@@ -18,6 +18,7 @@ import SystemToolsPage from './pages/SystemToolsPage'
 import DownloadsPage from './pages/Downloads'
 import DisplayPage from './pages/Display'
 import Layout from './components/layout/Layout'
+import { PermissionsProvider } from './hooks/usePermissions'
 import JokeTimeNotice from './pages/JokeTimeNotice'
 import JokeDashboard from './pages/JokeDashboard'
 import JokeFileManager from './pages/JokeFileManager'
@@ -72,7 +73,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <PermissionsProvider>
+        <AppRoutes />
+      </PermissionsProvider>
     </AuthProvider>
   )
 }

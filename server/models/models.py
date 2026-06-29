@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     is_active = db.Column(db.Boolean, default=True)
     avatar = db.Column(db.String(256), default='')
     settings = db.Column(db.JSON, default={})
+    permissions = db.Column(db.JSON, default={})
 
 class StoragePool(db.Model):
     id = db.Column(db.String(64), primary_key=True, default=gen_id)

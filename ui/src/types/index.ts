@@ -5,6 +5,7 @@ export interface User {
   email: string
   avatar?: string
   created_at?: string
+  permissions?: UserPermissions
 }
 
 export interface SystemStatus {
@@ -149,6 +150,7 @@ export interface CustomizationConfig {
   noiseOverlay: boolean
   glassBorderOpacity: number
   glowSpread: number
+  customWallpaper?: string
 }
 
 export interface AIProvider {
@@ -160,4 +162,49 @@ export interface AIProvider {
   default_model?: string
   enabled?: boolean
   models?: string[]
+}
+
+export interface PagePermissions {
+  view: boolean
+  upload?: boolean
+  delete?: boolean
+  createPool?: boolean
+  format?: boolean
+  chat?: boolean
+  imageGen?: boolean
+  manageProviders?: boolean
+  add?: boolean
+  remove?: boolean
+  scan?: boolean
+  install?: boolean
+  configure?: boolean
+  launch?: boolean
+  processes?: boolean
+  services?: boolean
+  docker?: boolean
+  firewall?: boolean
+  create?: boolean
+  cancel?: boolean
+  notes?: boolean
+  todos?: boolean
+  terminal?: boolean
+  restore?: boolean
+  empty?: boolean
+  send?: boolean
+  popup?: boolean
+  changeTheme?: boolean
+  changePassword?: boolean
+  edit?: boolean
+  managePermissions?: boolean
+}
+
+export interface UserPermissions {
+  pages: Record<string, PagePermissions>
+  features: Record<string, boolean>
+  limits: {
+    storageQuotaMb: number
+    maxDevices: number
+    maxShares: number
+    maxNotifications: number
+  }
 }

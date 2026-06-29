@@ -62,6 +62,8 @@ def create_app():
     from api.monitor import monitor_bp
     from api.backup import backup_bp
     from api.crypto import crypto_bp
+    from api.permissions import permissions_bp
+    from api.wallpaper import wallpaper_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(storage_bp, url_prefix='/api/storage')
@@ -85,6 +87,8 @@ def create_app():
     app.register_blueprint(monitor_bp, url_prefix='/api/monitor')
     app.register_blueprint(backup_bp, url_prefix='/api/backup')
     app.register_blueprint(crypto_bp, url_prefix='/api/crypto')
+    app.register_blueprint(permissions_bp, url_prefix='/api/permissions')
+    app.register_blueprint(wallpaper_bp, url_prefix='/api/wallpaper')
 
     @app.route('/api/status')
     def status():

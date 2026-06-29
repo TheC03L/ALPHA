@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
+import { usePermissions } from '../../hooks/usePermissions'
 import api from '../../utils/api'
 import {
   LayoutDashboard, HardDrive, Brain, Monitor, Puzzle,
@@ -116,6 +117,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   })
   const [showAvatarMenu, setShowAvatarMenu] = useState(false)
   const [hoveredNavLabel, setHoveredNavLabel] = useState<string | null>(null)
+  const { can } = usePermissions()
+
+  const pathToPerm: Record<string, string> = {
+    '/': 'dashboard',
+    '/storage': 'storage',
+    '/ai': 'aiStudio',
+    '/devices': 'devices',
+    '/extensions': 'extensions',
+    '/apps': 'apps',
+    '/system-tools': 'systemTools',
+    '/processes': 'processes',
+    '/downloads': 'downloads',
+    '/tools': 'tools',
+    '/shares': 'shares',
+    '/trash': 'trash',
+    '/notifications': 'notifications',
+    '/settings': 'settings',
+    '/users': 'users',
+  }
 
   useEffect(() => {
     localStorage.setItem('alpha-sidebar', collapsed ? 'collapsed' : 'expanded')
@@ -223,7 +243,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const visibleItems = navItems.filter(item => {
     if (item.label && isHiddenFn(item.label)) return false
-    return true
+    if (item.section) return true
+    const key = item.path ? pathToPerm[item.path] : ''
+    return !key || can(key, 'view')
   })
 
   const renderNavItem = (item: NavItem, depth = 0) => {
