@@ -17,6 +17,13 @@ import ToolsPage from './pages/ToolsPage'
 import SystemToolsPage from './pages/SystemToolsPage'
 import DownloadsPage from './pages/Downloads'
 import DisplayPage from './pages/Display'
+import BackupPage from './pages/Backup'
+import PermissionsPage from './pages/PermissionsPage'
+import RecentPage from './pages/RecentPage'
+import FavoritesPage from './pages/FavoritesPage'
+import FileManagerPage from './pages/FileManagerPage'
+import NetworkPage from './pages/NetworkPage'
+import AdminPage from './pages/AdminPage'
 import PagePlaceholder from './pages/PagePlaceholder'
 import Layout from './components/layout/Layout'
 import { PermissionsProvider } from './hooks/usePermissions'
@@ -77,16 +84,16 @@ function AppRoutes() {
               <Route path="/notes" element={<PagePlaceholder />} />
               <Route path="/calendar" element={<PagePlaceholder />} />
               <Route path="/calculator" element={<PagePlaceholder />} />
-              <Route path="/recent" element={<PagePlaceholder />} />
-              <Route path="/favorites" element={<PagePlaceholder />} />
-              <Route path="/files" element={<PagePlaceholder />} />
-              <Route path="/network" element={<PagePlaceholder />} />
+              <Route path="/recent" element={<RecentPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/files" element={<FileManagerPage />} />
+              <Route path="/network" element={<NetworkPage />} />
               <Route path="/network/*" element={<PagePlaceholder />} />
-              <Route path="/permissions" element={<PagePlaceholder />} />
+              <Route path="/permissions" element={<PermissionsPage />} />
               <Route path="/audit" element={<PagePlaceholder />} />
-              <Route path="/backup" element={<PagePlaceholder />} />
+              <Route path="/backup" element={<BackupPage />} />
               <Route path="/encryption" element={<PagePlaceholder />} />
-              <Route path="/admin" element={<PagePlaceholder />} />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="*" element={<Dashboard />} />
             </Routes>
           </Layout>
