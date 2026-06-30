@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react'
 import {
   Database, Download, Upload, Trash2, Plus, X, File,
   Loader, AlertCircle, Check, Info, HardDrive
-, AlertTriangle} from 'lucide-react'
+, AlertTriangle
+} from 'lucide-react'
 import api from '../utils/api'
 
 interface BackupArchive {
