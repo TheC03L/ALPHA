@@ -275,7 +275,11 @@ export default function AIStudio() {
     const res = await fetch(apiUrl + '/chat/completions', {
       method: 'POST', headers, body: JSON.stringify(body), signal
     })
-    if (!res.ok) throw new Error(`API error: ${res.status}`)
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      const snippet = body.replace(/<[^>]+>/g, '').trim().slice(0, 200) || body.slice(0, 200)
+      throw new Error(`API error ${res.status}: ${snippet}`)
+    }
     const reader = res.body?.getReader()
     if (!reader) throw new Error('No reader')
 
