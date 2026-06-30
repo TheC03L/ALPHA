@@ -66,6 +66,10 @@ def create_app():
     from api.crypto import crypto_bp
     from api.permissions import permissions_bp
     from api.wallpaper import wallpaper_bp
+    from api.endpoints import firewall_bp, dns_bp, proxy_bp, processes_bp
+    from api.endpoints import music_bp, videos_bp, photos_bp, podcasts_bp
+    from api.endpoints import bookmarks_bp, notes_bp, calendar_bp, network_bp
+    from api.endpoints import audit_bp, encryption_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(storage_bp, url_prefix='/api/storage')
@@ -91,6 +95,20 @@ def create_app():
     app.register_blueprint(crypto_bp, url_prefix='/api/crypto')
     app.register_blueprint(permissions_bp, url_prefix='/api/permissions')
     app.register_blueprint(wallpaper_bp, url_prefix='/api/wallpaper')
+    app.register_blueprint(firewall_bp, url_prefix='/api/firewall')
+    app.register_blueprint(dns_bp, url_prefix='/api/dns')
+    app.register_blueprint(proxy_bp, url_prefix='/api/proxy')
+    app.register_blueprint(processes_bp, url_prefix='/api/processes')
+    app.register_blueprint(music_bp, url_prefix='/api/music')
+    app.register_blueprint(videos_bp, url_prefix='/api/videos')
+    app.register_blueprint(photos_bp, url_prefix='/api/photos')
+    app.register_blueprint(podcasts_bp, url_prefix='/api/podcasts')
+    app.register_blueprint(bookmarks_bp, url_prefix='/api/bookmarks')
+    app.register_blueprint(notes_bp, url_prefix='/api/notes')
+    app.register_blueprint(calendar_bp, url_prefix='/api/calendar')
+    app.register_blueprint(network_bp, url_prefix='/api/network')
+    app.register_blueprint(audit_bp, url_prefix='/api/audit')
+    app.register_blueprint(encryption_bp, url_prefix='/api/encryption')
 
     @app.route('/api/status')
     def status():

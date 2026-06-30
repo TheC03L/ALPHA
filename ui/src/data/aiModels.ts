@@ -42,6 +42,10 @@ export const OPENCODE_MODELS: string[] = [
   'qwen3.6-plus', 'qwen3.5-plus',
 ]
 
+
+export const POLLINATIONS_MODELS: string[] = [
+  'openai', 'openai-fast',
+]
 export const KEYLESSAI_MODELS: string[] = [
   'openai-fast', 'step-3.5-flash:free', 'gemma3-270m:free',
   'gpt-5-nano', 'gpt-4o-mini', 'gpt-3.5-turbo',
@@ -333,6 +337,12 @@ export const VIRTUAL_PROVIDERS: VirtualProviderDef[] = [
     api_url: 'https://opencode.ai/zen/v1', api_key: '',
     default_model: 'big-pickle',
     models: OPENCODE_MODELS,
+  },
+  {
+    id: '__pollinations__', name: 'Pollinations.ai', type: 'openai',
+    api_url: 'https://text.pollinations.ai/openai', api_key: '',
+    default_model: 'openai',
+    models: POLLINATIONS_MODELS,
   },
 ]
 

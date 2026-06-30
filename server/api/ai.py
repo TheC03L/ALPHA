@@ -4,7 +4,7 @@ from models.models import AIModel, ChatMessage, ChatAttachment, AiProvider, Gith
 from flask_login import login_required, current_user
 from config import Config
 from api.ai_providers import get_provider, get_provider_from_db, OllamaProvider
-from api.ai_models import OPENCODE_MODELS, KEYLESSAI_MODELS, GROQ_MODELS, HUGGINGFACE_MODELS, CLOUDFLARE_MODELS
+from api.ai_models import OPENCODE_MODELS, KEYLESSAI_MODELS, GROQ_MODELS, HUGGINGFACE_MODELS, CLOUDFLARE_MODELS, POLLINATIONS_MODELS
 import requests, json, os, uuid, datetime, io, base64
 try: import subprocess, platform, psutil
 except: pass
@@ -31,6 +31,13 @@ def get_provider_for_user(provider_id=None, data=None):
                 'api_url': 'https://keylessai.thryx.workers.dev/v1',
                 'default_model': 'openai-fast'
             }), KEYLESSAI_MODELS
+        if provider_id == '__pollinations__':
+            from .ai_providers import OpenAICompatibleProvider
+            return OpenAICompatibleProvider({
+                'api_key': '',
+                'api_url': 'https://text.pollinations.ai/openai',
+                'default_model': 'openai'
+            }), POLLINATIONS_MODELS
         if provider_id == '__ollama__':
             return OllamaProvider(), []
         dp = AiProvider.query.filter_by(id=provider_id, user_id=current_user.id, enabled=True).first()

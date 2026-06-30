@@ -80,3 +80,6 @@ CLOUDFLARE_MODELS = [
     '@hf/thebloke/mistral-7b-instruct-v0.1-gguf',
     '@hf/thebloke/llama-2-7b-chat-gguf',
 ]
+
+
+POLLINATIONS_MODELS = ['openai', 'openai-fast']
