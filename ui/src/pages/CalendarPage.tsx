@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Calendar, ChevronLeft, ChevronRight, Plus, X, Trash2,
   Loader, AlertCircle, Check, Info, Clock, Circle
-, AlertTriangle} from 'lucide-react'
+, AlertTriangle
+} from 'lucide-react'
 import api from '../utils/api'
 
 interface CalendarEvent {
