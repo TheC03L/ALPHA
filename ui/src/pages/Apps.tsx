@@ -23,7 +23,7 @@ import {
   Volume, Volume1, Volume2, VolumeX, Watch, Wifi as WifiIcon,
   WifiOff, Wind, X, ZoomIn, ZoomOut, TrendingUp as Trending
 } from 'lucide-react'
-import { ALL_APPS, CATEGORIES, type AppDefinition } from '../data/apps'
+import { ALL_APPS, CATEGORIES, CATEGORY_COLORS, CATEGORY_EMOJI, CURATED_APPS_URL, type AppDefinition } from '../data/apps'
 import api from '../utils/api'
 import AppLauncher from '../components/apps/AppLauncher'
 
@@ -123,6 +123,14 @@ export default function AppsPage() {
   const [installedIds, setInstalledIds] = useState<Set<string>>(new Set())
   const [launching, setLaunching] = useState<AppDefinition | null>(null)
   const [loading, setLoading] = useState(true)
+  const [externalApps, setExternalApps] = useState<AppDefinition[] | null>(null)
+
+  useEffect(() => {
+    fetch(CURATED_APPS_URL)
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setExternalApps(data) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     api.get('/apps/').then(r => {
@@ -133,7 +141,7 @@ export default function AppsPage() {
   }, [])
 
   const filtered = useMemo(() => {
-    let apps = ALL_APPS
+    let apps = externalApps ?? ALL_APPS
     if (tab === 'installed') {
       apps = apps.filter(a => installedIds.has(a.id))
     }
@@ -149,7 +157,7 @@ export default function AppsPage() {
       )
     }
     return apps
-  }, [tab, search, selectedCategory, installedIds])
+  }, [tab, search, selectedCategory, installedIds, externalApps])
 
   const handleLaunch = (app: AppDefinition) => {
     if (app.launch_type === 'tab') {
@@ -182,7 +190,7 @@ export default function AppsPage() {
           className={`btn btn-sm ${tab === 'all' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setTab('all')}
         >
-          <Grid3X3 size={14} /> All Apps <span style={{ opacity: 0.6, fontSize: 11 }}>({ALL_APPS.length})</span>
+          <Grid3X3 size={14} /> All Apps <span style={{ opacity: 0.6, fontSize: 11 }}>({(externalApps ?? ALL_APPS).length})</span>
         </button>
         <button
           className={`btn btn-sm ${tab === 'installed' ? 'btn-primary' : 'btn-ghost'}`}
@@ -254,10 +262,14 @@ export default function AppsPage() {
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
                 <div style={{
                   width: 42, height: 42, borderRadius: 12,
-                  background: 'var(--accent-dim)',
+                  background: CATEGORY_COLORS[app.category]?.bg || 'var(--accent-dim)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--accent)', flexShrink: 0
+                  color: CATEGORY_COLORS[app.category]?.fg || 'var(--accent)', flexShrink: 0,
+                  position: 'relative', overflow: 'hidden'
                 }}>
+                  <span style={{ fontSize: 18, opacity: 0.3, position: 'absolute', right: -4, bottom: -4 }}>
+                    {CATEGORY_EMOJI[app.category] || ''}
+                  </span>
                   {iconMap[app.icon] || <Grid3X3 size={20} />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -280,8 +292,12 @@ export default function AppsPage() {
               <div style={{
                 display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12
               }}>
-                <span className="badge badge-accent" style={{ fontSize: 10, padding: '1px 8px' }}>
-                  {app.category}
+                <span className="badge" style={{
+                  fontSize: 10, padding: '1px 8px',
+                  background: (CATEGORY_COLORS[app.category]?.badge || '#6366f1') + '30',
+                  color: CATEGORY_COLORS[app.category]?.fg || '#818cf8'
+                }}>
+                  {CATEGORY_EMOJI[app.category] || ''} {app.category}
                 </span>
                 <span className="badge" style={{
                   fontSize: 10, padding: '1px 8px',

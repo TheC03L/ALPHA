@@ -11,7 +11,7 @@ export interface AppDefinition {
   tags?: string[]
 }
 
-const CATEGORIES = [
+export const CATEGORIES = [
   'System Tools', 'Developer', 'Media', 'Productivity', 'Utilities',
   'Games', 'AI Tools', 'Network', 'Security', 'External Services',
   'Education', 'Finance', 'Social', 'News', 'Weather',
@@ -19,42 +19,47 @@ const CATEGORIES = [
   'Design', 'Writing', 'Reference', 'Communication',
 ]
 
-const ICONS = [
-  'cpu', 'hard-drive', 'monitor', 'server', 'database', 'wifi', 'globe',
-  'zap', 'cloud', 'music', 'video', 'image', 'file-text', 'book',
-  'terminal', 'settings', 'users', 'bell', 'lock', 'unlock',
-  'star', 'heart', 'gift', 'clock', 'calendar', 'map-pin',
-  'camera', 'headphones', 'radio', 'tv', 'smartphone', 'tablet',
-  'watch', 'compass', 'anchor', 'award', 'battery', 'bluetooth',
-  'box', 'briefcase', 'cast', 'code', 'coffee', 'compass',
-  'crop', 'crosshair', 'database', 'disc', 'dollar-sign', 'download',
-  'edit', 'external-link', 'eye', 'fast-forward', 'feather',
-  'file', 'film', 'filter', 'flag', 'folder', 'gift', 'git-branch',
-  'globe', 'grid', 'hash', 'headphones', 'heart', 'help-circle',
-  'home', 'image', 'inbox', 'info', 'key', 'layers', 'layout',
-  'life-buoy', 'link', 'list', 'loader', 'lock', 'log-in', 'log-out',
-  'map', 'maximize', 'message-circle', 'message-square', 'mic',
-  'minimize', 'minus', 'monitor', 'moon', 'more-horizontal',
-  'more-vertical', 'move', 'music', 'navigation', 'package',
-  'paperclip', 'pause', 'pen-tool', 'percent', 'phone', 'pie-chart',
-  'play', 'plus', 'pocket', 'power', 'printer', 'radio', 'refresh-cw',
-  'repeat', 'rewind', 'rotate-ccw', 'rss', 'save', 'scissors',
-  'search', 'send', 'server', 'settings', 'share', 'shield',
-  'shopping-cart', 'shuffle', 'sidebar', 'skip-back', 'skip-forward',
-  'slack', 'slash', 'sliders', 'smartphone', 'speaker', 'square',
-  'star', 'stop-circle', 'sun', 'sunrise', 'sunset', 'tablet',
-  'tag', 'target', 'terminal', 'thermometer', 'thumbs-down',
-  'thumbs-up', 'toggle-left', 'toggle-right', 'tool', 'trash',
-  'trending-down', 'trending-up', 'triangle', 'truck', 'tv',
-  'type', 'umbrella', 'underline', 'unlock', 'upload', 'user',
-  'user-check', 'user-minus', 'user-plus', 'user-x', 'users',
-  'video', 'video-off', 'voicemail', 'volume', 'volume-1',
-  'volume-2', 'volume-x', 'watch', 'wifi', 'wifi-off', 'wind',
-  'x', 'zoom-in', 'zoom-out',
-]
+export const CATEGORY_COLORS: Record<string, { bg: string; fg: string; badge: string }> = {
+  'System Tools':     { bg: '#1e293b', fg: '#38bdf8', badge: '#0ea5e9' },
+  'Developer':        { bg: '#1a1a2e', fg: '#a78bfa', badge: '#8b5cf6' },
+  'Media':            { bg: '#2d1b2e', fg: '#f472b6', badge: '#ec4899' },
+  'Productivity':     { bg: '#1e3a2f', fg: '#34d399', badge: '#10b981' },
+  'Utilities':        { bg: '#1e293b', fg: '#fbbf24', badge: '#f59e0b' },
+  'Games':            { bg: '#2d1b1b', fg: '#fb923c', badge: '#f97316' },
+  'AI Tools':         { bg: '#1a1a3e', fg: '#818cf8', badge: '#6366f1' },
+  'Network':          { bg: '#0f2e3e', fg: '#22d3ee', badge: '#06b6d4' },
+  'Security':         { bg: '#1e1e1e', fg: '#f87171', badge: '#ef4444' },
+  'External Services':{ bg: '#1e2a1e', fg: '#4ade80', badge: '#22c55e' },
+  'Education':        { bg: '#1e1e3a', fg: '#c084fc', badge: '#a855f7' },
+  'Finance':          { bg: '#1e2e1e', fg: '#fbbf24', badge: '#f59e0b' },
+  'Social':           { bg: '#1e2e3a', fg: '#60a5fa', badge: '#3b82f6' },
+  'News':             { bg: '#1e1e2e', fg: '#e879f9', badge: '#d946ef' },
+  'Weather':          { bg: '#0f2e3e', fg: '#67e8f9', badge: '#22d3ee' },
+  'Health':           { bg: '#2d1e1e', fg: '#fb7185', badge: '#f43f5e' },
+  'Travel':           { bg: '#1e2e2e', fg: '#2dd4bf', badge: '#14b8a6' },
+  'Food':             { bg: '#2d2d1e', fg: '#fcd34d', badge: '#eab308' },
+  'Music':            { bg: '#2d1b2e', fg: '#e879f9', badge: '#c026d3' },
+  'Photography':      { bg: '#1e2a2e', fg: '#38bdf8', badge: '#0ea5e9' },
+  'Design':           { bg: '#2d1e2e', fg: '#c084fc', badge: '#a855f7' },
+  'Writing':          { bg: '#1e2e2e', fg: '#34d399', badge: '#10b981' },
+  'Reference':        { bg: '#1e1e3a', fg: '#e879f9', badge: '#d946ef' },
+  'Communication':    { bg: '#0f2e3e', fg: '#22d3ee', badge: '#06b6d4' },
+}
+
+export const CATEGORY_EMOJI: Record<string, string> = {
+  'System Tools': '\u2699\uFE0F', 'Developer': '\uD83D\uDCBB', 'Media': '\uD83C\uDFA5',
+  'Productivity': '\uD83D\uDCCB', 'Utilities': '\uD83D\uDD27', 'Games': '\uD83C\uDFAE',
+  'AI Tools': '\uD83E\uDD16', 'Network': '\uD83C\uDF10', 'Security': '\uD83D\uDD12',
+  'External Services': '\u26A1', 'Education': '\uD83C\uDF93', 'Finance': '\uD83D\uDCB0',
+  'Social': '\uD83D\uDC65', 'News': '\uD83D\uDCF0', 'Weather': '\u2601\uFE0F',
+  'Health': '\u2764\uFE0F', 'Travel': '\u2708\uFE0F', 'Food': '\uD83C\uDF54',
+  'Music': '\uD83C\uDFB5', 'Photography': '\uD83D\uDCF7', 'Design': '\uD83C\uDFA8',
+  'Writing': '\u270D\uFE0F', 'Reference': '\uD83D\uDCDA', 'Communication': '\uD83D\uDCDE',
+}
+
+export const CURATED_APPS_URL = 'https://raw.githubusercontent.com/vector-just-technology/VisionHUB/curated-apps/curated-apps.json'
 
 const REAL_SERVICES: AppDefinition[] = [
-  // System Tools
   { id: 'sys-monitor', name: 'sys-monitor', display_name: 'System Monitor', icon: 'cpu', description: 'Real-time CPU, memory, disk, and network monitoring', category: 'System Tools', launch_type: 'route', url: '/', featured: true, tags: ['system', 'monitoring', 'performance'] },
   { id: 'file-manager', name: 'file-manager', display_name: 'File Manager', icon: 'folder', description: 'Full file browser with upload, download, rename, delete', category: 'System Tools', launch_type: 'route', url: '/storage', featured: true, tags: ['files', 'storage', 'browser'] },
   { id: 'task-manager', name: 'task-manager', display_name: 'Task Manager', icon: 'activity', description: 'View and manage running processes', category: 'System Tools', launch_type: 'route', url: '/system-tools', tags: ['processes', 'tasks'] },
@@ -65,8 +70,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'device-manager', name: 'device-manager', display_name: 'Device Manager', icon: 'monitor', description: 'Manage connected devices and peripherals', category: 'System Tools', launch_type: 'route', url: '/devices', tags: ['devices', 'hardware'] },
   { id: 'notification-center', name: 'notification-center', display_name: 'Notification Center', icon: 'bell', description: 'View and manage all system notifications', category: 'System Tools', launch_type: 'route', url: '/notifications', tags: ['notifications', 'alerts'] },
   { id: 'extension-manager', name: 'extension-manager', display_name: 'Extension Manager', icon: 'grid', description: 'Install and manage system extensions', category: 'System Tools', launch_type: 'route', url: '/extensions', tags: ['extensions', 'plugins'] },
-
-  // Developer Tools
   { id: 'terminal', name: 'terminal', display_name: 'Web Terminal', icon: 'terminal', description: 'Full in-browser terminal with command history', category: 'Developer', launch_type: 'route', url: '/tools', featured: true, tags: ['terminal', 'cli', 'shell'] },
   { id: 'code-editor', name: 'code-editor', display_name: 'Code Editor', icon: 'code', description: 'Edit code files with syntax highlighting', category: 'Developer', launch_type: 'iframe', url: 'https://vscode.dev', featured: true, tags: ['editor', 'code', 'programming'] },
   { id: 'json-formatter', name: 'json-formatter', display_name: 'JSON Formatter', icon: 'file-text', description: 'Format, validate, and beautify JSON', category: 'Developer', launch_type: 'iframe', url: 'https://jsonformatter.org', tags: ['json', 'formatter'] },
@@ -77,8 +80,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'html-preview', name: 'html-preview', display_name: 'HTML Preview', icon: 'eye', description: 'Live preview HTML/CSS/JavaScript', category: 'Developer', launch_type: 'iframe', url: 'https://codepen.io/pen/', tags: ['html', 'css', 'js', 'preview'] },
   { id: 'diff-checker', name: 'diff-checker', display_name: 'Diff Checker', icon: 'file-text', description: 'Compare text and code differences', category: 'Developer', launch_type: 'iframe', url: 'https://www.diffchecker.com', tags: ['diff', 'compare', 'text'] },
   { id: 'yaml-validator', name: 'yaml-validator', display_name: 'YAML Validator', icon: 'file-text', description: 'Validate and format YAML files', category: 'Developer', launch_type: 'iframe', url: 'https://www.yamllint.com', tags: ['yaml', 'validator'] },
-
-  // Media
   { id: 'media-player', name: 'media-player', display_name: 'Media Player', icon: 'music', description: 'Play audio and video files', category: 'Media', launch_type: 'route', url: '/storage', featured: true, tags: ['media', 'player', 'audio', 'video'] },
   { id: 'music-player', name: 'music-player', display_name: 'Music Player', icon: 'headphones', description: 'Full-featured music player with playlists', category: 'Media', launch_type: 'iframe', url: 'https://music.youtube.com', featured: true, tags: ['music', 'audio', 'player'] },
   { id: 'podcast-player', name: 'podcast-player', display_name: 'Podcast Player', icon: 'radio', description: 'Subscribe and listen to podcasts', category: 'Media', launch_type: 'iframe', url: 'https://podcasts.google.com', tags: ['podcast', 'audio'] },
@@ -89,8 +90,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'screen-recorder', name: 'screen-recorder', display_name: 'Screen Recorder', icon: 'video', description: 'Record your screen and webcam', category: 'Media', launch_type: 'iframe', url: 'https://www.screenrec.com', tags: ['screen', 'recorder'] },
   { id: 'stream-player', name: 'stream-player', display_name: 'Stream Player', icon: 'tv', description: 'Watch live streams from various platforms', category: 'Media', launch_type: 'iframe', url: 'https://www.twitch.tv', tags: ['stream', 'live', 'twitch'] },
   { id: 'ebook-reader', name: 'ebook-reader', display_name: 'E-Book Reader', icon: 'book', description: 'Read and manage your e-book collection', category: 'Media', launch_type: 'route', url: '/storage', tags: ['ebook', 'reading', 'books'] },
-
-  // Productivity
   { id: 'notes', name: 'notes', display_name: 'Notes', icon: 'file-text', description: 'Write and organize notes with categories', category: 'Productivity', launch_type: 'route', url: '/tools', featured: true, tags: ['notes', 'writing'] },
   { id: 'calendar', name: 'calendar', display_name: 'Calendar', icon: 'calendar', description: 'View and manage events and reminders', category: 'Productivity', launch_type: 'iframe', url: 'https://calendar.google.com', tags: ['calendar', 'events', 'schedule'] },
   { id: 'whiteboard', name: 'whiteboard', display_name: 'Whiteboard', icon: 'edit', description: 'Draw and sketch with collaborative tools', category: 'Productivity', launch_type: 'iframe', url: 'https://excalidraw.com', featured: true, tags: ['draw', 'sketch', 'whiteboard'] },
@@ -101,8 +100,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'url-shortener', name: 'url-shortener', display_name: 'URL Shortener', icon: 'link', description: 'Shorten long URLs with custom aliases', category: 'Productivity', launch_type: 'route', url: '/tools', tags: ['url', 'shortener'] },
   { id: 'clipboard-manager', name: 'clipboard-manager', display_name: 'Clipboard Manager', icon: 'copy', description: 'Manage clipboard history and snippets', category: 'Productivity', launch_type: 'iframe', url: 'https://clippy.io', tags: ['clipboard', 'copy', 'paste'] },
   { id: 'timer-alarm', name: 'timer-alarm', display_name: 'Timer & Alarm', icon: 'clock', description: 'Set countdown timers and alarms', category: 'Productivity', launch_type: 'iframe', url: 'https://www.online-stopwatch.com', tags: ['timer', 'alarm', 'stopwatch'] },
-
-  // Utilities
   { id: 'calculator', name: 'calculator', display_name: 'Calculator', icon: 'hash', description: 'Scientific calculator with unit converter', category: 'Utilities', launch_type: 'iframe', url: 'https://www.desmos.com/scientific', featured: true, tags: ['calculator', 'math'] },
   { id: 'unit-converter', name: 'unit-converter', display_name: 'Unit Converter', icon: 'percent', description: 'Convert between any units of measurement', category: 'Utilities', launch_type: 'iframe', url: 'https://www.convertunits.com', tags: ['converter', 'units'] },
   { id: 'color-picker', name: 'color-picker', display_name: 'Color Picker', icon: 'eye', description: 'Pick colors and get hex/rgb values', category: 'Utilities', launch_type: 'iframe', url: 'https://coolors.co', tags: ['color', 'picker', 'design'] },
@@ -113,8 +110,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'countdown', name: 'countdown', display_name: 'Countdown Timer', icon: 'clock', description: 'Set a countdown to any date or event', category: 'Utilities', launch_type: 'iframe', url: 'https://www.timeanddate.com/countdown', tags: ['countdown', 'timer'] },
   { id: 'random-generator', name: 'random-generator', display_name: 'Random Generator', icon: 'hash', description: 'Generate random numbers, passwords, and more', category: 'Utilities', launch_type: 'iframe', url: 'https://www.random.org', tags: ['random', 'generator'] },
   { id: 'barcode-scanner', name: 'barcode-scanner', display_name: 'Barcode Scanner', icon: 'camera', description: 'Scan barcodes and QR codes with your camera', category: 'Utilities', launch_type: 'iframe', url: 'https://barcode.tec-it.com', tags: ['barcode', 'scanner'] },
-
-  // Games
   { id: 'chess', name: 'chess', display_name: 'Chess', icon: 'grid', description: 'Play chess against AI or friends', category: 'Games', launch_type: 'iframe', url: 'https://www.chess.com/play/computer', featured: true, tags: ['chess', 'game', 'strategy'] },
   { id: 'sudoku', name: 'sudoku', display_name: 'Sudoku', icon: 'grid', description: 'Solve Sudoku puzzles with varying difficulty', category: 'Games', launch_type: 'iframe', url: 'https://sudoku.com', tags: ['sudoku', 'puzzle'] },
   { id: '2048', name: '2048', display_name: '2048', icon: 'grid', description: 'Classic 2048 number puzzle game', category: 'Games', launch_type: 'iframe', url: 'https://play2048.co', tags: ['2048', 'puzzle', 'game'] },
@@ -125,8 +120,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'minesweeper', name: 'minesweeper', display_name: 'Minesweeper', icon: 'grid', description: 'Classic Minesweeper puzzle game', category: 'Games', launch_type: 'iframe', url: 'https://minesweeperonline.com', tags: ['minesweeper', 'puzzle'] },
   { id: 'wordle', name: 'wordle', display_name: 'Wordle', icon: 'edit', description: 'Daily word guessing puzzle game', category: 'Games', launch_type: 'iframe', url: 'https://www.nytimes.com/games/wordle', featured: true, tags: ['wordle', 'words', 'puzzle'] },
   { id: 'crossword', name: 'crossword', display_name: 'Crossword', icon: 'grid', description: 'Daily crossword puzzles', category: 'Games', launch_type: 'iframe', url: 'https://www.nytimes.com/crosswords', tags: ['crossword', 'puzzle'] },
-
-  // AI Tools
   { id: 'ai-studio', name: 'ai-studio', display_name: 'AI Studio', icon: 'zap', description: 'Chat with AI models and analyze files', category: 'AI Tools', launch_type: 'route', url: '/ai', featured: true, tags: ['ai', 'chat', 'llm'] },
   { id: 'ai-image-gen', name: 'ai-image-gen', display_name: 'AI Image Generator', icon: 'image', description: 'Generate images from text descriptions', category: 'AI Tools', launch_type: 'iframe', url: 'https://stability.ai', featured: true, tags: ['ai', 'image', 'generation'] },
   { id: 'ai-text-gen', name: 'ai-text-gen', display_name: 'AI Text Generator', icon: 'file-text', description: 'Generate text content with AI', category: 'AI Tools', launch_type: 'route', url: '/ai', tags: ['ai', 'text', 'writing'] },
@@ -135,8 +128,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'ai-summarizer', name: 'ai-summarizer', display_name: 'AI Summarizer', icon: 'file-text', description: 'Summarize long articles and documents', category: 'AI Tools', launch_type: 'route', url: '/ai', tags: ['summarize', 'ai', 'text'] },
   { id: 'voice-assistant', name: 'voice-assistant', display_name: 'Voice Assistant', icon: 'mic', description: 'Voice-controlled AI assistant', category: 'AI Tools', launch_type: 'route', url: '/display', tags: ['voice', 'assistant', 'ai'] },
   { id: 'ai-file-analysis', name: 'ai-file-analysis', display_name: 'AI File Analysis', icon: 'search', description: 'Analyze files with AI', category: 'AI Tools', launch_type: 'route', url: '/ai', tags: ['file', 'analysis', 'ai'] },
-
-  // Network
   { id: 'network-monitor', name: 'network-monitor', display_name: 'Network Monitor', icon: 'wifi', description: 'Monitor network traffic and bandwidth', category: 'Network', launch_type: 'route', url: '/devices', featured: true, tags: ['network', 'monitoring'] },
   { id: 'speed-test', name: 'speed-test', display_name: 'Speed Test', icon: 'wifi', description: 'Test your internet connection speed', category: 'Network', launch_type: 'iframe', url: 'https://fast.com', featured: true, tags: ['speed', 'internet', 'test'] },
   { id: 'ping-tool', name: 'ping-tool', display_name: 'Ping Tool', icon: 'activity', description: 'Ping hosts and monitor latency', category: 'Network', launch_type: 'route', url: '/system-tools', tags: ['ping', 'network', 'latency'] },
@@ -147,8 +138,6 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'port-checker', name: 'port-checker', display_name: 'Port Checker', icon: 'server', description: 'Check if ports are open and accessible', category: 'Network', launch_type: 'iframe', url: 'https://www.yougetsignal.com/tools/open-ports', tags: ['ports', 'network', 'security'] },
   { id: 'bandwidth-monitor', name: 'bandwidth-monitor', display_name: 'Bandwidth Monitor', icon: 'trending-up', description: 'Track bandwidth usage over time', category: 'Network', launch_type: 'route', url: '/', tags: ['bandwidth', 'monitoring'] },
   { id: 'hotspot-manager', name: 'hotspot-manager', display_name: 'Hotspot Manager', icon: 'wifi', description: 'Create and manage WiFi hotspots', category: 'Network', launch_type: 'route', url: '/settings', tags: ['hotspot', 'wifi', 'access-point'] },
-
-  // Security
   { id: 'firewall', name: 'firewall', display_name: 'Firewall', icon: 'shield', description: 'Manage firewall rules and settings', category: 'Security', launch_type: 'iframe', url: 'https://www.shodan.io', featured: true, tags: ['firewall', 'security'] },
   { id: 'password-generator', name: 'password-generator', display_name: 'Password Generator', icon: 'lock', description: 'Generate strong, secure passwords', category: 'Security', launch_type: 'route', url: '/tools', tags: ['password', 'security', 'generator'] },
   { id: 'encryption-tool', name: 'encryption-tool', display_name: 'Encryption Tool', icon: 'lock', description: 'Encrypt and decrypt files securely', category: 'Security', launch_type: 'route', url: '/storage', tags: ['encryption', 'security'] },
@@ -157,9 +146,8 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: '2fa-manager', name: '2fa-manager', display_name: '2FA Manager', icon: 'lock', description: 'Manage two-factor authentication codes', category: 'Security', launch_type: 'iframe', url: 'https://www.authy.com', tags: ['2fa', 'authentication', 'security'] },
   { id: 'privacy-checker', name: 'privacy-checker', display_name: 'Privacy Checker', icon: 'eye', description: 'Check your online privacy status', category: 'Security', launch_type: 'iframe', url: 'https://privacycheck.securingtomorrow.com', tags: ['privacy', 'security'] },
   { id: 'malware-scanner', name: 'malware-scanner', display_name: 'Malware Scanner', icon: 'shield', description: 'Scan files for malware and threats', category: 'Security', launch_type: 'iframe', url: 'https://www.virustotal.com', tags: ['malware', 'scan', 'security'] },
-
-  // External Services
-  { id: 'github', name: 'github', display_name: 'GitHub', icon: 'code', description: 'Browse repositories and manage code', category: 'External Services', launch_type: 'tab', url: 'https://github.com', featured: true, tags: ['github', 'code', 'git'] },
+  { id: 'github', name: 'github', display_name: 'GitHub', icon: 'github', description: 'Browse repositories and manage code', category: 'External Services', launch_type: 'tab', url: 'https://github.com', featured: true, tags: ['github', 'code', 'git'] },
+  { id: 'gitlab', name: 'gitlab', display_name: 'GitLab', icon: 'git-branch', description: 'DevOps platform with CI/CD pipelines', category: 'External Services', launch_type: 'tab', url: 'https://gitlab.com', tags: ['gitlab', 'devops', 'ci'] },
   { id: 'gmail', name: 'gmail', display_name: 'Gmail', icon: 'mail', description: 'Access your Gmail inbox', category: 'External Services', launch_type: 'tab', url: 'https://mail.google.com', featured: true, tags: ['email', 'gmail'] },
   { id: 'google-drive', name: 'google-drive', display_name: 'Google Drive', icon: 'hard-drive', description: 'Access your Google Drive files', category: 'External Services', launch_type: 'tab', url: 'https://drive.google.com', tags: ['drive', 'cloud', 'storage'] },
   { id: 'google-docs', name: 'google-docs', display_name: 'Google Docs', icon: 'file-text', description: 'Create and edit documents online', category: 'External Services', launch_type: 'tab', url: 'https://docs.google.com', tags: ['docs', 'documents', 'writing'] },
@@ -173,36 +161,32 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'docker-hub', name: 'docker-hub', display_name: 'Docker Hub', icon: 'server', description: 'Browse Docker container images', category: 'External Services', launch_type: 'tab', url: 'https://hub.docker.com', tags: ['docker', 'containers'] },
   { id: 'npm-registry', name: 'npm-registry', display_name: 'npm Registry', icon: 'box', description: 'Browse npm packages', category: 'External Services', launch_type: 'tab', url: 'https://www.npmjs.com', tags: ['npm', 'packages', 'javascript'] },
   { id: 'pypi', name: 'pypi', display_name: 'PyPI', icon: 'box', description: 'Browse Python packages', category: 'External Services', launch_type: 'tab', url: 'https://pypi.org', tags: ['python', 'packages', 'pypi'] },
-
-  // Education
+  { id: 'discord', name: 'discord', display_name: 'Discord', icon: 'message-square', description: 'Chat with communities and friends', category: 'External Services', launch_type: 'tab', url: 'https://discord.com/app', tags: ['discord', 'chat', 'social'] },
+  { id: 'slack', name: 'slack', display_name: 'Slack', icon: 'message-circle', description: 'Team communication and collaboration', category: 'External Services', launch_type: 'tab', url: 'https://slack.com', tags: ['slack', 'chat', 'team'] },
+  { id: 'figma', name: 'figma', display_name: 'Figma', icon: 'pen-tool', description: 'Collaborative design and prototyping', category: 'External Services', launch_type: 'tab', url: 'https://figma.com', tags: ['figma', 'design', 'prototyping'] },
+  { id: 'notion', name: 'notion', display_name: 'Notion', icon: 'file-text', description: 'All-in-one workspace for notes, docs, and projects', category: 'External Services', launch_type: 'tab', url: 'https://notion.so', tags: ['notion', 'notes', 'workspace'] },
+  { id: 'linear', name: 'linear', display_name: 'Linear', icon: 'activity', description: 'Issue tracking and project management', category: 'External Services', launch_type: 'tab', url: 'https://linear.app', tags: ['linear', 'issues', 'project-management'] },
+  { id: 'vercel', name: 'vercel', display_name: 'Vercel', icon: 'triangle', description: 'Deploy web projects instantly', category: 'External Services', launch_type: 'tab', url: 'https://vercel.com', tags: ['vercel', 'deploy', 'hosting'] },
   { id: 'khan-academy', name: 'khan-academy', display_name: 'Khan Academy', icon: 'book', description: 'Free online courses and lessons', category: 'Education', launch_type: 'tab', url: 'https://www.khanacademy.org', featured: true, tags: ['education', 'courses', 'learning'] },
   { id: 'coursera', name: 'coursera', display_name: 'Coursera', icon: 'book', description: 'Online courses from top universities', category: 'Education', launch_type: 'tab', url: 'https://www.coursera.org', tags: ['courses', 'learning', 'university'] },
   { id: 'udemy', name: 'udemy', display_name: 'Udemy', icon: 'book', description: 'Online learning and teaching marketplace', category: 'Education', launch_type: 'tab', url: 'https://www.udemy.com', tags: ['courses', 'learning'] },
   { id: 'duolingo', name: 'duolingo', display_name: 'Duolingo', icon: 'globe', description: 'Learn languages for free', category: 'Education', launch_type: 'tab', url: 'https://www.duolingo.com', featured: true, tags: ['language', 'learning'] },
   { id: 'wolfram-alpha', name: 'wolfram-alpha', display_name: 'Wolfram Alpha', icon: 'hash', description: 'Computational knowledge engine', category: 'Education', launch_type: 'tab', url: 'https://www.wolframalpha.com', tags: ['math', 'science', 'knowledge'] },
-
-  // Finance
   { id: 'yahoo-finance', name: 'yahoo-finance', display_name: 'Yahoo Finance', icon: 'trending-up', description: 'Stock market data and financial news', category: 'Finance', launch_type: 'tab', url: 'https://finance.yahoo.com', featured: true, tags: ['finance', 'stocks', 'market'] },
   { id: 'coinbase', name: 'coinbase', display_name: 'Coinbase', icon: 'dollar-sign', description: 'Buy and sell cryptocurrency', category: 'Finance', launch_type: 'tab', url: 'https://www.coinbase.com', tags: ['crypto', 'bitcoin', 'exchange'] },
   { id: 'tradingview', name: 'tradingview', display_name: 'TradingView', icon: 'trending-up', description: 'Advanced charting and trading tools', category: 'Finance', launch_type: 'tab', url: 'https://www.tradingview.com', tags: ['trading', 'charts', 'stocks'] },
   { id: 'budget-tracker', name: 'budget-tracker', display_name: 'Budget Tracker', icon: 'dollar-sign', description: 'Track personal finances and budgets', category: 'Finance', launch_type: 'tab', url: 'https://mint.com', tags: ['budget', 'finance', 'tracking'] },
   { id: 'currency-converter', name: 'currency-converter', display_name: 'Currency Converter', icon: 'percent', description: 'Convert between world currencies', category: 'Finance', launch_type: 'iframe', url: 'https://www.xe.com', tags: ['currency', 'exchange', 'converter'] },
-
-  // Health
   { id: 'meditation', name: 'meditation', display_name: 'Meditation Timer', icon: 'moon', description: 'Guided meditation and breathing exercises', category: 'Health', launch_type: 'iframe', url: 'https://www.calm.com', tags: ['meditation', 'mindfulness', 'health'] },
   { id: 'workout-tracker', name: 'workout-tracker', display_name: 'Workout Tracker', icon: 'activity', description: 'Track exercises and fitness progress', category: 'Health', launch_type: 'tab', url: 'https://www.myfitnesspal.com', tags: ['fitness', 'workout', 'health'] },
   { id: 'calorie-counter', name: 'calorie-counter', display_name: 'Calorie Counter', icon: 'heart', description: 'Track daily calorie intake and nutrition', category: 'Health', launch_type: 'tab', url: 'https://www.cronometer.com', tags: ['calories', 'nutrition', 'diet'] },
   { id: 'sleep-tracker', name: 'sleep-tracker', display_name: 'Sleep Tracker', icon: 'moon', description: 'Track and analyze sleep patterns', category: 'Health', launch_type: 'iframe', url: 'https://www.sleepcycle.com', tags: ['sleep', 'tracking', 'health'] },
   { id: 'water-reminder', name: 'water-reminder', display_name: 'Water Reminder', icon: 'droplets', description: 'Track daily water intake and stay hydrated', category: 'Health', launch_type: 'iframe', url: 'https://www.waterminder.com', tags: ['water', 'hydration', 'health'] },
-
-  // Weather
   { id: 'weather-forecast', name: 'weather-forecast', display_name: 'Weather Forecast', icon: 'cloud', description: 'Current conditions and 7-day forecast', category: 'Weather', launch_type: 'iframe', url: 'https://weather.com', featured: true, tags: ['weather', 'forecast'] },
   { id: 'radar-map', name: 'radar-map', display_name: 'Weather Radar', icon: 'map-pin', description: 'Interactive weather radar map', category: 'Weather', launch_type: 'iframe', url: 'https://www.wunderground.com/wundermap', tags: ['radar', 'weather', 'map'] },
   { id: 'hurricane-tracker', name: 'hurricane-tracker', display_name: 'Hurricane Tracker', icon: 'wind', description: 'Track active hurricanes and storms', category: 'Weather', launch_type: 'iframe', url: 'https://www.nhc.noaa.gov', tags: ['hurricane', 'storm', 'weather'] },
   { id: 'air-quality', name: 'air-quality', display_name: 'Air Quality', icon: 'wind', description: 'Check local air quality index', category: 'Weather', launch_type: 'iframe', url: 'https://www.iqair.com', tags: ['air', 'quality', 'pollution'] },
   { id: 'marine-forecast', name: 'marine-forecast', display_name: 'Marine Forecast', icon: 'droplets', description: 'Marine weather and tide forecasts', category: 'Weather', launch_type: 'iframe', url: 'https://www.tide-forecast.com', tags: ['marine', 'tides', 'forecast'] },
-
-  // Travel
   { id: 'google-maps', name: 'google-maps', display_name: 'Google Maps', icon: 'map-pin', description: 'Interactive maps and navigation', category: 'Travel', launch_type: 'tab', url: 'https://maps.google.com', featured: true, tags: ['maps', 'navigation', 'travel'] },
   { id: 'flight-tracker', name: 'flight-tracker', display_name: 'Flight Tracker', icon: 'navigation', description: 'Track flights in real-time', category: 'Travel', launch_type: 'iframe', url: 'https://flightaware.com', tags: ['flights', 'tracking', 'travel'] },
   { id: 'hotel-booking', name: 'hotel-booking', display_name: 'Hotel Booking', icon: 'home', description: 'Search and book hotels worldwide', category: 'Travel', launch_type: 'tab', url: 'https://www.booking.com', tags: ['hotels', 'booking', 'travel'] },
@@ -210,145 +194,8 @@ const REAL_SERVICES: AppDefinition[] = [
   { id: 'time-zone-map', name: 'time-zone-map', display_name: 'Time Zone Map', icon: 'globe', description: 'Interactive world time zone map', category: 'Travel', launch_type: 'iframe', url: 'https://www.timeanddate.com/time/map', tags: ['timezone', 'map', 'world'] },
 ]
 
-function generateSystemApp(index: number): AppDefinition {
-  const names = [
-    'Resource Monitor', 'Performance Dashboard', 'Service Manager', 'Startup Manager',
-    'Environment Variables', 'Scheduled Tasks', 'Event Viewer', 'Registry Editor',
-    'Group Policy Editor', 'Device Inventory', 'Software Inventory', 'License Manager',
-    'Audit Log', 'Compliance Scanner', 'Health Checker', 'Diagnostics Tool',
-    'Recovery Tool', 'Boot Manager', 'Kernel Module Loader', 'Init System',
-    'Service Status', 'Port Listener', 'Socket Monitor', 'Route Table',
-    'ARP Cache', 'DNS Cache', 'DHCP Leases', 'NTP Sync',
-    'SNMP Agent', 'Syslog Viewer', 'Cron Manager', 'Ansible Runner',
-    'Docker Manager', 'Kubernetes Dashboard', 'Container Monitor', 'Pod Manager',
-    'Image Registry', 'Volume Manager', 'Network Policy', 'Secret Manager',
-    'Config Map Editor', 'Ingress Controller', 'Load Balancer', 'Auto Scaler',
-    'API Gateway', 'Service Mesh', 'Tracing Dashboard', 'Metrics Server',
-  ]
-  const n = names[index % names.length]
-  return {
-    id: `sys-${index}`,
-    name: `sys-${n.toLowerCase().replace(/\s+/g, '-')}`,
-    display_name: n,
-    icon: ICONS[(index * 17) % ICONS.length],
-    description: `System tool #${index + 1}: ${n} for ALPHA NAS`,
-    category: 'System Tools',
-    launch_type: 'route',
-    url: '/system-tools',
-    tags: ['system', n.toLowerCase().replace(/\s+/g, '-')],
-  }
-}
-
-function generateDevApp(index: number): AppDefinition {
-  const langs = ['Python', 'JavaScript', 'TypeScript', 'Go', 'Rust', 'C++', 'Java', 'Ruby', 'PHP', 'Swift', 'Kotlin', 'Dart', 'Elixir', 'Haskell', 'Scala', 'Perl', 'Lua', 'R', 'MATLAB', 'Shell']
-  const tools = ['Debugger', 'Profiler', 'Linter', 'Formatter', 'Compiler', 'Interpreter', 'Documenter', 'Tester', 'Benchmarker', 'Deployer', 'Builder', 'Packager', 'Dependency Checker', 'Code Analyzer', 'Refactoring Tool', 'Code Generator', 'Template Engine', 'Schema Validator', 'API Client', 'Database Explorer']
-  const l = langs[index % langs.length]
-  const t = tools[(index * 7) % tools.length]
-  return {
-    id: `dev-${index}`,
-    name: `dev-${l.toLowerCase()}-${t.toLowerCase().replace(/\s+/g, '-')}`,
-    display_name: `${l} ${t}`,
-    icon: ICONS[(index * 23) % ICONS.length],
-    description: `Developer tool #${index + 1}: ${l} ${t} for ${l} development`,
-    category: 'Developer',
-    launch_type: index % 3 === 0 ? 'iframe' : index % 3 === 1 ? 'route' : 'tab',
-    url: index % 3 === 0 ? 'https://replit.com' : '/tools',
-    tags: [l.toLowerCase(), t.toLowerCase().replace(/\s+/g, '-'), 'development'],
-  }
-}
-
-function generateMediaApp(index: number): AppDefinition {
-  const types = ['Radio Station', 'Music Genre Mix', 'Video Collection', 'Art Gallery', 'Photo Album', 'Animation Studio', 'Film Library', 'Documentary Channel', 'Live TV Channel', 'Streaming Service', 'Audio Book Player', 'Comedy Station', 'News Broadcast', 'Sports Channel', 'Kids Channel', 'Nature Channel', 'Science Channel', 'History Channel', 'Music Video Channel', 'Classical Music']
-  return {
-    id: `media-${index}`,
-    name: `media-${types[index % types.length].toLowerCase().replace(/\s+/g, '-')}`,
-    display_name: types[index % types.length],
-    icon: ICONS[(index * 13) % ICONS.length],
-    description: `Media app #${index + 1}: ${types[index % types.length]} streaming and playback`,
-    category: 'Media',
-    launch_type: 'tab',
-    url: index % 2 === 0 ? 'https://www.youtube.com' : 'https://www.twitch.tv',
-    tags: ['media', types[index % types.length].toLowerCase().replace(/\s+/g, '-')],
-  }
-}
-
-function generateFunApp(index: number): AppDefinition {
-  const fun = ['Mini Golf', 'Bubble Shooter', 'Match 3', 'Word Search', 'Memory Game', 'Trivia Quiz', 'Hangman', 'Tic Tac Toe', 'Checkers', 'Backgammon', 'Dominoes', 'Mahjong', 'Jigsaw Puzzle', 'Coloring Book', 'Pixel Art', 'Doodle Pad', 'Music Maker', 'Drum Pad', 'Piano', 'Guitar Chords']
-  return {
-    id: `fun-${index}`,
-    name: `fun-${fun[index % fun.length].toLowerCase().replace(/\s+/g, '-')}`,
-    display_name: fun[index % fun.length],
-    icon: ICONS[(index * 29) % ICONS.length],
-    description: `Fun app #${index + 1}: ${fun[index % fun.length]} - play and enjoy`,
-    category: 'Games',
-    launch_type: 'iframe',
-    url: 'https://www.crazygames.com',
-    tags: ['game', 'fun', fun[index % fun.length].toLowerCase().replace(/\s+/g, '-')],
-  }
-}
-
-function generateUtilityApp(index: number): AppDefinition {
-  const utils = [
-    'Battery Monitor', 'Screen Dimmer', 'Night Light', 'Volume Booster', 'Equalizer',
-    'Text Extractor', 'Image Resizer', 'Batch Renamer', 'Duplicate Finder', 'File Splitter',
-    'PDF Merger', 'PDF Splitter', 'Watermark Remover', 'Background Remover', 'Image Compressor',
-    'Video Converter', 'Audio Extractor', 'Subtitle Downloader', 'Metadata Editor', 'Checksum Verifier',
-    'File Encryptor', 'Secure Deleter', 'Disk Wiper', 'File Carver', 'Hex Viewer',
-    'Binary Editor', 'Base64 Encoder', 'Hash Generator', 'UUID Generator', 'Slug Generator',
-    'Lorem Ipsum Gen', 'ASCII Art Gen', 'Morse Code Gen', 'Barcode Generator', 'Calendar Generator',
-    'Invoice Creator', 'Receipt Printer', 'Label Maker', 'Business Card Designer', 'Certificate Maker',
-    'Survey Creator', 'Form Builder', 'Template Designer', 'Report Generator', 'Chart Maker',
-    'Mind Mapper', 'Flowchart Gen', 'Diagram Creator', 'Wireframe Tool', 'Mockup Designer',
-  ]
-  return {
-    id: `util-${index}`,
-    name: `util-${utils[index % utils.length].toLowerCase().replace(/\s+/g, '-')}`,
-    display_name: utils[index % utils.length],
-    icon: ICONS[(index * 31) % ICONS.length],
-    description: `Utility #${index + 1}: ${utils[index % utils.length]}`,
-    category: 'Utilities',
-    launch_type: index % 4 === 0 ? 'iframe' : 'route',
-    url: index % 4 === 0 ? 'https://pinetools.com' : '/tools',
-    tags: ['utility', utils[index % utils.length].toLowerCase().replace(/\s+/g, '-')],
-  }
-}
-
-function generateLearningApp(index: number): AppDefinition {
-  const subjects = [
-    'Physics', 'Chemistry', 'Biology', 'Astronomy', 'Geology',
-    'Algebra', 'Geometry', 'Calculus', 'Statistics', 'Trigonometry',
-    'World History', 'US History', 'Ancient History', 'Geography', 'Civics',
-    'Literature', 'Grammar', 'Vocabulary', 'Writing Skills', 'Public Speaking',
-    'Computer Science', 'Data Structures', 'Algorithms', 'Networking', 'Cybersecurity',
-    'Philosophy', 'Psychology', 'Sociology', 'Economics', 'Political Science',
-    'Art History', 'Music Theory', 'Photography', 'Film Studies', 'Theater',
-    'French', 'Spanish', 'German', 'Italian', 'Japanese',
-    'Mandarin', 'Arabic', 'Russian', 'Portuguese', 'Hindi',
-  ]
-  const s = subjects[index % subjects.length]
-  return {
-    id: `learn-${index}`,
-    name: `learn-${s.toLowerCase().replace(/\s+/g, '-')}`,
-    display_name: `Learn ${s}`,
-    icon: ICONS[(index * 37) % ICONS.length],
-    description: `Educational app #${index + 1}: Learn ${s} with interactive lessons`,
-    category: 'Education',
-    launch_type: 'tab',
-    url: 'https://www.khanacademy.org',
-    tags: ['education', s.toLowerCase().replace(/\s+/g, '-'), 'learning'],
-  }
-}
-
 export function generateAllApps(): AppDefinition[] {
-  const all = [...REAL_SERVICES]
-  for (let i = 0; i < 200; i++) all.push(generateSystemApp(i))
-  for (let i = 0; i < 200; i++) all.push(generateDevApp(i))
-  for (let i = 0; i < 100; i++) all.push(generateMediaApp(i))
-  for (let i = 0; i < 100; i++) all.push(generateFunApp(i))
-  for (let i = 0; i < 200; i++) all.push(generateUtilityApp(i))
-  for (let i = 0; i < 200; i++) all.push(generateLearningApp(i))
-  return all
+  return [...REAL_SERVICES]
 }
 
 export const ALL_APPS = generateAllApps()
-export { CATEGORIES }
