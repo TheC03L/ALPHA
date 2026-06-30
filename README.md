@@ -64,25 +64,7 @@ curl -fsSL https://ollama.com | sh
 ollama pull mistral && ollama pull llama3.2:1b
 ```
 
-### Update Features ###
-##### VERSION 1.0 STABLE 20 JUNE #####
 
-- Implemented login
-- Implemented NAS Feature
-- Implemented Styling
-##### VERSION 1.5 STABLE 25 JUNE #####
-- Added more sidebar menus
-- Glass design
-- Added HAS-Style device configuration
-- Support for drive pooling
-##### VERSION 2.0 STABLE 29 JUNE #####
-- More customization
-- New light theme
-- AI improvement
-- Added support for AI widget generation
-- Efficiency improved - CPU down by 21%
-- More system tools
-- New App feature ( Still In development )
 
 2026 Vector. All rights reserved.
 
