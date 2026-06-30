@@ -16,12 +16,31 @@ export interface VirtualProviderDef {
   models: string[]
 }
 
-export const OPENCODE_MODELS: string[] = [
+export const OPENCODE_FREE_MODELS: string[] = [
   'big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free',
   'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free',
-  'north-mini-code-free', 'qwq-plus-free', 'qwen-max-free',
-  'gemini-2.5-flash-free', 'gpt-4o-mini-free', 'claude-sonnet-free',
-  'llama-4-scout-free', 'mistral-large-free', 'deepseek-r1-free',
+  'north-mini-code-free',
+]
+
+export const OPENCODE_MODELS: string[] = [
+  ...OPENCODE_FREE_MODELS,
+  'claude-fable-5', 'claude-opus-4-8', 'claude-opus-4-7',
+  'claude-opus-4-6', 'claude-opus-4-5', 'claude-opus-4-1',
+  'claude-sonnet-4-6', 'claude-sonnet-4-5', 'claude-sonnet-4',
+  'claude-haiku-4-5',
+  'gemini-3.5-flash', 'gemini-3.1-pro', 'gemini-3-flash',
+  'gpt-5.5', 'gpt-5.5-pro',
+  'gpt-5.4', 'gpt-5.4-pro', 'gpt-5.4-mini', 'gpt-5.4-nano',
+  'gpt-5.3-codex', 'gpt-5.3-codex-spark',
+  'gpt-5.2', 'gpt-5.2-codex',
+  'gpt-5.1', 'gpt-5.1-codex', 'gpt-5.1-codex-max', 'gpt-5.1-codex-mini',
+  'gpt-5', 'gpt-5-codex', 'gpt-5-nano',
+  'grok-build-0.1',
+  'deepseek-v4-pro', 'deepseek-v4-flash',
+  'glm-5.2', 'glm-5.1', 'glm-5',
+  'minimax-m2.7', 'minimax-m2.5',
+  'kimi-k2.6', 'kimi-k2.5',
+  'qwen3.6-plus', 'qwen3.5-plus',
 ]
 
 export const KEYLESSAI_MODELS: string[] = [
@@ -231,7 +250,7 @@ export const PROVIDER_DEFAULTS: Record<string, ProviderDef> = {
   groq: { url: 'https://api.groq.com/openai/v1', models: GROQ_MODELS, default_model: 'llama-3.3-70b-versatile', requires_key: true },
   huggingface: { url: 'https://api-inference.huggingface.co/v1', models: HUGGINGFACE_MODELS, default_model: 'meta-llama/Llama-3.2-3B-Instruct', requires_key: true },
   cloudflare: { url: '', models: CLOUDFLARE_MODELS, default_model: '@cf/meta/llama-3.2-3b-instruct', requires_key: true },
-  opencode: { url: 'https://opencode.ai/zen', models: OPENCODE_MODELS, default_model: 'big-pickle', requires_key: false },
+  opencode: { url: 'https://opencode.ai/zen/v1', models: OPENCODE_MODELS, default_model: 'big-pickle', requires_key: false },
   ollama: { url: 'http://localhost:11434', models: [], requires_key: false },
   together: { url: 'https://api.together.xyz/v1', models: TOGETHER_MODELS, requires_key: true },
   deepseek: { url: 'https://api.deepseek.com', models: DEEPSEEK_MODELS, requires_key: true },
@@ -244,7 +263,7 @@ export const PROVIDER_DEFAULTS: Record<string, ProviderDef> = {
 export const VIRTUAL_PROVIDERS: VirtualProviderDef[] = [
   {
     id: '__opencode__', name: 'OpenCode Zen', type: 'openai',
-    api_url: 'https://opencode.ai/zen', api_key: '',
+    api_url: 'https://opencode.ai/zen/v1', api_key: '',
     default_model: 'big-pickle',
     models: OPENCODE_MODELS,
   },
