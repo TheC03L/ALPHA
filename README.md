@@ -24,7 +24,7 @@ ___
 
 Quick Installation:
 ```
-bash <(curl -sL https://raw.githubusercontent.com/vector-just-technology/Home-server/stable/install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/vector-just-technology/VisionHUB/stable/install.sh)
 ```
 ### IMPORTANT NOTE ###
 __You would definitely need a fan for the Rpi, especially the Rpi 5. A recomended one is the Active Cooler__
