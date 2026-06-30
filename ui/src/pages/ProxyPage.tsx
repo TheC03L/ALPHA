@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import {
   Globe, Wifi, WifiOff, Save, Loader, AlertCircle, Check,
   Info, X, RefreshCw, Shield
-} from 'lucide-react'
+, AlertTriangle} from 'lucide-react'
 import api from '../utils/api'
 
 interface ProxySettings {
