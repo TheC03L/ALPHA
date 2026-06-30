@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import {
   Lock, Key, Plus, X, Trash2, Loader, AlertCircle, Check,
   Info, RefreshCw, Shield, Eye, EyeOff, Save
-} from 'lucide-react'
+, AlertTriangle} from 'lucide-react'
 import api from '../utils/api'
 
 interface EncryptionKey {
