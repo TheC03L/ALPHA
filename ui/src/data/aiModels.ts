@@ -18,8 +18,7 @@ export interface VirtualProviderDef {
 
 export const OPENCODE_FREE_MODELS: string[] = [
   'big-pickle', 'deepseek-v4-flash-free', 'mimo-v2.5-free',
-  'qwen3.6-plus-free', 'minimax-m3-free', 'nemotron-3-ultra-free',
-  'north-mini-code-free',
+  'nemotron-3-ultra-free', 'north-mini-code-free',
 ]
 
 export const OPENCODE_MODELS: string[] = [
@@ -29,11 +28,11 @@ export const OPENCODE_MODELS: string[] = [
   'claude-sonnet-4-6', 'claude-sonnet-4-5', 'claude-sonnet-4',
   'claude-haiku-4-5',
   'gemini-3.5-flash', 'gemini-3.1-pro', 'gemini-3-flash',
-  'gpt-5.5', 'gpt-5.5-pro',
-  'gpt-5.4', 'gpt-5.4-pro', 'gpt-5.4-mini', 'gpt-5.4-nano',
-  'gpt-5.3-codex', 'gpt-5.3-codex-spark',
+  'gpt-5.5', 'gpt-5.5-pro', 'gpt-5.4', 'gpt-5.4-pro',
+  'gpt-5.4-mini', 'gpt-5.4-nano',
+  'gpt-5.3-codex-spark', 'gpt-5.3-codex',
   'gpt-5.2', 'gpt-5.2-codex',
-  'gpt-5.1', 'gpt-5.1-codex', 'gpt-5.1-codex-max', 'gpt-5.1-codex-mini',
+  'gpt-5.1', 'gpt-5.1-codex-max', 'gpt-5.1-codex', 'gpt-5.1-codex-mini',
   'gpt-5', 'gpt-5-codex', 'gpt-5-nano',
   'grok-build-0.1',
   'deepseek-v4-pro', 'deepseek-v4-flash',
