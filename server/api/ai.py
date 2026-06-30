@@ -71,12 +71,7 @@ def status():
             'default_model': 'big-pickle',
             'models': OPENCODE_MODELS
         })
-        result['providers'].append({
-            'id': '__keylessai__', 'name': 'KeylessAI (free)', 'type': 'openai',
-            'default_model': 'openai-fast',
-            'models': KEYLESSAI_MODELS
-        })
-        result['active_provider'] = {'id': '__keylessai__', 'name': 'KeylessAI (free)', 'type': 'openai', 'model': 'openai-fast'}
+        result['active_provider'] = {'id': '__opencode__', 'name': 'OpenCode Zen', 'type': 'openai', 'model': 'big-pickle'}
     return jsonify(result)
 
 @ai_bp.route('/models')
