@@ -16,6 +16,9 @@
   <a href="https://vector-just-technology.github.io/Home-server/#">
     <img src="https://img.shields.io/badge/Git-Site-yellow" alt="GitHub Repo">
   </a>
+   <a href="https://github.com/vector-just-technology/VisionHUB/new/Stable">
+    <img src="https://img.shields.io/badge/Git-Updates-skyblue" alt="GitHub Repo">
+  </a>
 </p>
 
 ___
