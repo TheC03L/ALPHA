@@ -318,8 +318,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="layout">
       <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-logo">
-          <div className="logo-icon">A</div>
-          {!collapsed && <span>ALPHA</span>}
+          <div className="logo-icon">V</div>
+          {!collapsed && <span>VisionHUB</span>}
         </div>
 
         <div className="sidebar-nav">
@@ -538,3 +538,4 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+

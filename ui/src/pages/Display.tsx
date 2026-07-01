@@ -169,7 +169,7 @@ export default function DisplayPage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div className="logo-icon" style={{ width: 28, height: 28, fontSize: 14 }}>A</div>
-          <span style={{ fontSize: 14, fontWeight: 600 }}>ALPHA</span>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>VisionHUB</span>
           <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{hostname}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12 }}>
@@ -341,7 +341,7 @@ export default function DisplayPage() {
         borderTop: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', gap: 20
       }}>
-        <span>ALPHA v1.0</span>
+        <span>VisionHUB v1.0</span>
         <span>Nodes: 2</span>
         <span style={{ color: ollamaOk ? 'var(--success)' : 'var(--danger)' }}>
           AI: {ollamaOk ? 'Online' : 'Offline'}
@@ -351,3 +351,4 @@ export default function DisplayPage() {
     </div>
   )
 }
+

@@ -68,7 +68,7 @@ export default function Login() {
       <div className="orb" />
       <div className="orb" />
       <div className="login-container">
-        <h1>ALPHA</h1>
+        <h1>VisionHUB</h1>
         <p className="subtitle">Personal Cloud Operating System</p>
         <form onSubmit={handleSubmit}>
           {error && <div className="login-error">{error}</div>}
@@ -131,3 +131,4 @@ export default function Login() {
     </div>
   )
 }
+

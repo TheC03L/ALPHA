@@ -47,7 +47,7 @@ import JokeCocomelon from './pages/JokeCocomelon'
 
 function AppRoutes() {
   const { user, loading } = useAuth()
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-primary)', color: 'var(--text-secondary)' }}>ALPHA</div>
+  if (loading) return <div className="loading-screen"><div className="logo-icon" style={{ width: 48, height: 48, fontSize: 24 }}>V</div><span style={{ marginTop: 12, fontSize: 18, fontWeight: 700 }}>VisionHUB</span></div>
   if (user?.role === 'joke') {
     return (
       <Routes>
@@ -125,3 +125,4 @@ export default function App() {
     </AuthProvider>
   )
 }
+

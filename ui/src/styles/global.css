@@ -570,11 +570,12 @@ label { font-size: calc(13px * var(--font-size-mult)); font-weight: 500; color: 
   display: flex; align-items: center; gap: 8px;
   background: color-mix(in srgb, rgba(255,255,255,var(--glass-bg-opacity)) calc(var(--glass-bg-opacity)*100%), var(--bg-secondary));
   border: 1px solid var(--glass-border); border-radius: 10px; padding: 6px 14px;
-  width: 240px; transition: all var(--transition);
+  max-width: 240px; width: auto; flex: 0 1 160px; transition: all var(--transition);
 }
-.header-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); width: 320px; }
+.header-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); max-width: 320px; }
 .header-search input { background: none; border: none; padding: 0; font-size: 13px; color: var(--text-primary); width: 100%; }
 .header-search input:focus { box-shadow: none; }
+.header-left h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1; min-width: 0; }
 
 .content {
   flex: 1; overflow-y: auto; padding: 28px;
@@ -955,3 +956,4 @@ body.dark .login-dev-output { background: rgba(0,0,0,0.3); }
 .joke-cocomelon-container { max-width: 800px; width: 100%; }
 .joke-cocomelon-player { aspect-ratio: 16/9; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--glass-border); }
 .joke-cocomelon-player iframe { width: 100%; height: 100%; border: none; }
+
