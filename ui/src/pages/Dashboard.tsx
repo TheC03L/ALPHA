@@ -20,9 +20,9 @@ import { SystemStatus, StorageInfo, Device, MetricPoint, DashboardWidget, Notifi
 import PopupModal from '../components/common/PopupModal'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import WidgetGrid from '../components/dashboard/WidgetGrid'
-import AIWidgetGenerator from '../components/dashboard/AIWidgetGenerator'
+import DashboardCustomizer from '../components/dashboard/DashboardCustomizer'
 import PlusButton from '../components/dashboard/PlusButton'
-import CustomizationMenu from '../components/dashboard/CustomizationMenu'
+
 
 interface ToastData { id: string; message: string; type: 'success' | 'error' | 'info' | 'warning' }
 
@@ -269,7 +269,6 @@ export default function Dashboard() {
   const [processes, setProcesses] = useState<any[]>([])
   const [services] = useState<any[]>([])
   const [widgets, setWidgets] = useState<DashboardWidget[]>([])
-  const [showGen, setShowGen] = useState(false)
   const [showCustomize, setShowCustomize] = useState(false)
   const [hideAiBanner, setHideAiBanner] = useState(() => localStorage.getItem('alpha-hide-ai-banner') === 'true')
   const [toasts, setToasts] = useState<ToastData[]>([])
@@ -359,11 +358,35 @@ export default function Dashboard() {
   const cpuSparkData = useMemo(() => metrics.map(m => ({ v: m.cpu })).slice(-30), [metrics])
   const memSparkData = useMemo(() => metrics.map(m => ({ v: m.memory })).slice(-30), [metrics])
 
-  const handleAiGenerate = useCallback((newWidgets: DashboardWidget[]) => {
+  const handleAddWidgets = useCallback((newWidgets: DashboardWidget[]) => {
     setWidgets(prev => [...prev, ...newWidgets])
-    setShowGen(false)
-    addToast(`${newWidgets.length} AI widget${newWidgets.length !== 1 ? 's' : ''} generated`, 'success')
+    addToast(`${newWidgets.length} widget${newWidgets.length !== 1 ? 's' : ''} added`, 'success')
   }, [addToast])
+
+  const handleRemoveWidget = useCallback((id: string) => {
+    setWidgets(prev => prev.filter(w => w.id !== id))
+  }, [])
+
+  const handleReorderWidgets = useCallback((reordered: DashboardWidget[]) => {
+    setWidgets(reordered)
+  }, [])
+
+  const handleRenameWidget = useCallback((id: string, title: string) => {
+    setWidgets(prev => prev.map(w => w.id === id ? { ...w, title } : w))
+  }, [])
+
+  const handleAddSeparator = useCallback(() => {
+    const sep: DashboardWidget = {
+      id: `sep-${Date.now()}`,
+      type: 'separator' as any,
+      title: '— Row Break —',
+      icon: 'minus',
+      color: 'var(--text-muted)',
+      subtitle: '',
+      source: 'custom',
+    }
+    setWidgets(prev => [...prev, sep])
+  }, [])
 
   const dismissAiBanner = useCallback(() => {
     setHideAiBanner(true)
@@ -1113,42 +1136,8 @@ export default function Dashboard() {
           </div>
         </ErrorBoundary>
 
-        {/* AI Widget Section */}
-        <ErrorBoundary name="ai-widgets" fallback={panelError('AI Widgets')}>
-          <div className="card-liquid" style={{ padding: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={16} /> AI Widgets
-                {widgets.length > 0 && (
-                  <span className="badge badge-accent" style={{ fontSize: 10, padding: '1px 7px' }}>
-                    {widgets.length.toLocaleString()}
-                  </span>
-                )}
-              </h3>
-              <button className="btn btn-primary btn-sm" onClick={() => setShowGen(true)}>
-                <Sparkles size={13} /> Generate
-              </button>
-            </div>
-
-            {showGen && (
-              <AIWidgetGenerator
-                providers={providers}
-                onGenerate={handleAiGenerate}
-                onClose={() => setShowGen(false)}
-              />
-            )}
-
-            <WidgetGrid widgets={widgets} onRemove={(id) => setWidgets(prev => prev.filter(w => w.id !== id))} />
-
-            {widgets.length === 0 && !showGen && (
-              <div className="empty-state" style={{ padding: 36 }}>
-                <Sparkles size={36} style={{ opacity: 0.25 }} />
-                <h3>No AI widgets yet</h3>
-                <p style={{ fontSize: 12 }}>Click Generate to have AI create custom dashboard widgets based on what you want to monitor</p>
-              </div>
-            )}
-          </div>
-        </ErrorBoundary>
+        {/* Custom Widgets - added via DashboardCustomizer */}
+        <WidgetGrid widgets={widgets} onRemove={handleRemoveWidget} />
 
         {/* System Info */}
         <ErrorBoundary name="system-info" fallback={panelError('System Info')}>
@@ -1188,16 +1177,20 @@ export default function Dashboard() {
         </ErrorBoundary>
       </div>
 
-      <PlusButton
-        onAddWidget={() => setShowGen(true)}
-        onCustomize={() => setShowCustomize(true)}
-      />
+      <PlusButton onCustomize={() => setShowCustomize(true)} />
 
       {showCustomize && (
-        <CustomizationMenu
+        <DashboardCustomizer
+          widgets={widgets}
+          providers={providers}
           config={config}
           theme={theme}
           wallpaper={wallpaper}
+          onAddWidgets={handleAddWidgets}
+          onRemoveWidget={handleRemoveWidget}
+          onReorderWidgets={handleReorderWidgets}
+          onRenameWidget={handleRenameWidget}
+          onAddSeparator={handleAddSeparator}
           onUpdateConfig={updateConfig}
           onSetTheme={setTheme}
           onSetWallpaper={setWallpaper}

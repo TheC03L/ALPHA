@@ -119,7 +119,7 @@ export interface Backup {
 
 export interface DashboardWidget {
   id: string
-  type: 'builtin' | 'ai'
+  type: 'builtin' | 'ai' | 'separator'
   title: string
   subtitle?: string
   icon: string
