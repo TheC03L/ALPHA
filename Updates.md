@@ -16,3 +16,9 @@ ___
 - Fixed bugs with sidebar
 - Fixed bugs with most AI models
 - Added more AI models 50+
+#### VERSION 2.2 1 JULY ####
+- Fixed branding issue
+- Fixed terminal issue / gives white screen
+- Added more customization
+- Fixed AI widget issue - no AI configured
+- Fixed the issue where users at the login page can still curate accounts even if a admin was already curated.
